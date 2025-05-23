@@ -1,9 +1,9 @@
 // src/App.tsx
 import React from 'react';
-import LoginPage from './LoginPage';
+import ResidencyRankingPage from './ResidencyRankingPage';
 
 const App: React.FC = () => (
-  <LoginPage />
+  <ResidencyRankingPage />
 );
 
 export default App;
