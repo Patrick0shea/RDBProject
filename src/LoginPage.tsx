@@ -26,27 +26,41 @@ const LoginPage: React.FC = () => {
     formData.append('role', role);
     if (cv) formData.append('cv', cv);
 
-    fetch('/api/register', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Server response:', data);
+   fetch('/api/register', {
+     method: 'POST',
+     body: formData,
+   })
+     .then(async (res) => {
+       const text = await res.text(); // Read the raw response first
+       let data = {};
 
-        // Navigate to appropriate dashboard
-        if (role === 'user') {
-          navigate('/user-dashboard');
-        } else if (role === 'company') {
-          navigate('/company-dashboard');
-        } else if (role === 'admin') {
-          navigate('/admin-dashboard');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert('Something went wrong!');
-      });
+       try {
+         data = JSON.parse(text); // Try parsing if possible
+       } catch {
+         console.warn('Response is not JSON:', text);
+       }
+
+       if (!res.ok) {
+         throw new Error((data as any).message || 'Server error occurred');
+       }
+
+       // Save role in local storage
+       localStorage.setItem('user_type', role);
+
+       // Navigate to the appropriate dashboard
+       if (role === 'user') {
+         navigate('/user-dashboard');
+       } else if (role === 'company') {
+         navigate('/company-dashboard');
+       } else if (role === 'admin') {
+         navigate('/admin-dashboard');
+       }
+     })
+     .catch((err) => {
+       console.error('Error during fetch:', err);
+       alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
+     });
+
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +89,6 @@ const LoginPage: React.FC = () => {
           </select>
         </label>
 
-        {/* About Me */}
         <label style={styles.label}>
           About Me
           <input
@@ -88,7 +101,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* Email */}
         <label style={styles.label}>
           Email
           <input
@@ -101,7 +113,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* Password */}
         <label style={styles.label}>
           Password
           <input
@@ -114,7 +125,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* LinkedIn */}
         <label style={styles.label}>
           LinkedIn
           <input
@@ -126,7 +136,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* GitHub */}
         <label style={styles.label}>
           GitHub
           <input
@@ -138,7 +147,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* Address */}
         <label style={styles.label}>
           Home Address
           <input
@@ -150,7 +158,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* CV Upload */}
         <label style={styles.label}>
           Upload CV
           <input
