@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-  const [aboutMe, setaboutMe] = useState('');
+  const [aboutMe, setAboutMe] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [github, setGithub] = useState('');
   const [address, setAddress] = useState('');
   const [cv, setCv] = useState<File | null>(null);
+  const [role, setRole] = useState('user');
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +23,7 @@ const LoginPage: React.FC = () => {
     formData.append('linkedin', linkedin);
     formData.append('github', github);
     formData.append('address', address);
+    formData.append('role', role);
     if (cv) formData.append('cv', cv);
 
     fetch('/api/register', {
@@ -26,8 +31,22 @@ const LoginPage: React.FC = () => {
       body: formData,
     })
       .then(res => res.json())
-      .then(data => console.log('Server response:', data))
-      .catch(err => console.error(err));
+      .then(data => {
+        console.log('Server response:', data);
+
+        // Navigate to appropriate dashboard
+        if (role === 'user') {
+          navigate('/user-dashboard');
+        } else if (role === 'company') {
+          navigate('/company-dashboard');
+        } else if (role === 'admin') {
+          navigate('/admin-dashboard');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Something went wrong!');
+      });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,17 +58,30 @@ const LoginPage: React.FC = () => {
   return (
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Form Header */}
         <h1 style={styles.header}>ISE Residency Ranking System</h1>
 
+        {/* Role Dropdown */}
+        <label style={styles.label}>
+          Select Role
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            style={styles.input}
+            required
+          >
+            <option value="user">User</option>
+            <option value="company">Company</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
 
-         {/* About me */}
-         <label style={styles.label}>
+        {/* About Me */}
+        <label style={styles.label}>
           About Me
           <input
-            type="text"  /* changed to text so you can see what you type */
+            type="text"
             value={aboutMe}
-            onChange={e => setaboutMe(e.target.value)}
+            onChange={e => setAboutMe(e.target.value)}
             required
             style={styles.input}
             placeholder="Tell us about yourself in 100 words"
@@ -73,7 +105,7 @@ const LoginPage: React.FC = () => {
         <label style={styles.label}>
           Password
           <input
-            type="text"  /* changed to text so you can see what you type */
+            type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
@@ -82,7 +114,7 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* LinkedIn URL */}
+        {/* LinkedIn */}
         <label style={styles.label}>
           LinkedIn
           <input
@@ -94,7 +126,7 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* GitHub URL */}
+        {/* GitHub */}
         <label style={styles.label}>
           GitHub
           <input
@@ -114,7 +146,7 @@ const LoginPage: React.FC = () => {
             value={address}
             onChange={e => setAddress(e.target.value)}
             style={styles.input}
-            placeholder="eircode"
+            placeholder="Eircode"
           />
         </label>
 
@@ -129,7 +161,6 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {/* Submit Button */}
         <button type="submit" style={styles.button}>
           Submit
         </button>
@@ -147,7 +178,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     height: '100vh',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#002D40', // deep navy
+    background: '#002D40',
     padding: '2rem',
     boxSizing: 'border-box',
   },
@@ -156,20 +187,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: '500px',
     padding: '2.5rem',
     borderRadius: '12px',
-    background: '#F0FDF4', // very light greenish white
+    background: '#F0FDF4',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
   },
   header: {
     marginBottom: '1.5rem',
     textAlign: 'center',
     fontSize: '2rem',
-    color: '#0F5132', // dark green
+    color: '#0F5132',
   },
   label: {
     display: 'block',
     marginBottom: '1.25rem',
     fontSize: '1rem',
-    color: '#1F2937', // dark gray
+    color: '#1F2937',
   },
   input: {
     display: 'block',
@@ -178,9 +209,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: '0.5rem',
     fontSize: '1rem',
     borderRadius: '6px',
-    border: '1px solid #A3E635', // lime green border
+    border: '1px solid #A3E635',
     boxSizing: 'border-box',
-    background: '#FFFFFF', // white input
+    background: '#FFFFFF',
     color: '#1F2937',
   },
   button: {
@@ -189,7 +220,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '1rem',
     borderRadius: '6px',
     border: 'none',
-    background: '#22C55E', // green button
+    background: '#22C55E',
     color: '#FFFFFF',
     cursor: 'pointer',
     marginTop: '1.5rem',
