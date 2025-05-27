@@ -1,160 +1,116 @@
+// src/pages/CompanyLogin.tsx
 import React, { useState } from "react";
-import { EmailField } from "./EmailField.tsx";
-import { PasswordField } from "./PasswordField.tsx";
+import { EmailField } from "../components/EmailField"; /* put className?: string; */
+import { PasswordField } from "../components/PasswordField"; /* put className?: string; */
 import { useNavigate } from "react-router-dom";
+
 export function CompanyLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail]             = useState("");
+  const [password, setPassword]       = useState("");
   const [companyName, setCompanyName] = useState("");
   const [numberOfJobs, setNumberOfJobs] = useState("");
-  const [jobDescription, setjobDescription] = useState("");
-  const [jobSalary, setjobSalary] = useState("");
-
-  const navigate = useNavigate();
+  const [jobDescription, setJobDescription] = useState("");
+  const [jobSalary, setJobSalary]     = useState("");
+  const navigate                      = useNavigate();
 
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        margin: 0,
-        fontFamily: "sans-serif",
-        background: "#0F172A",
-      }}
+      className="dashboard-container"
+      style={{ height: "100vh", justifyContent: "center", alignItems: "center" }}
     >
-      <div
-        style={{
-          width: "600px",
-          background: "#FFF",
-          borderRadius: "8px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          padding: "2rem",
-        }}
-      >
-        <h1
-          style={{
-            textAlign: "center",
-            color: "#10B981",
-            marginBottom: "1.5rem",
-          }}
-        >
+      <div className="company-list" style={{ maxWidth: "600px" }}>
+        <h1 className="ranking-title" style={{ marginBottom: "1.5rem" }}>
           Create Company Account
         </h1>
 
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Company Name:</label>
-          <br />
+          <label style={{ color: "#374151", display: "block" }}>
+            Company Name:
+          </label>
           <input
             type="text"
             value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
+            onChange={e => setCompanyName(e.target.value)}
             placeholder="Enter your company name"
-            style={fieldStyle}
+            className="input-field"
             required
           />
         </div>
 
-  
-           {/* Num of Jobs*/}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Number of Jobs:</label>
-          <br />
+          <label style={{ color: "#374151", display: "block" }}>
+            Number of Jobs:
+          </label>
           <input
             type="number"
             value={numberOfJobs}
-            onChange={(e) => setNumberOfJobs(e.target.value)}
+            onChange={e => setNumberOfJobs(e.target.value)}
             placeholder="How many jobs are you posting?"
-            style={fieldStyle}
+            className="input-field"
             required
           />
         </div>
 
-
-           {/* Job Description */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Job Description:</label>
-          <br />
+          <label style={{ color: "#374151", display: "block" }}>
+            Job Description:
+          </label>
           <input
             type="text"
             value={jobDescription}
-            onChange={(e) => setjobDescription(e.target.value)}
+            onChange={e => setJobDescription(e.target.value)}
             placeholder="Describe the role you are hiring for"
-            style={fieldStyle}
+            className="input-field"
             required
           />
         </div>
 
-
-
-          {/* Monthly Salary*/}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Expected Monthly Salary:</label>
-          <br />
+          <label style={{ color: "#374151", display: "block" }}>
+            Expected Monthly Salary:
+          </label>
           <input
             type="number"
             value={jobSalary}
-            onChange={(e) => setjobSalary(e.target.value)}
+            onChange={e => setJobSalary(e.target.value)}
             placeholder="€ X,XXX"
-            style={fieldStyle}
+            className="input-field"
             required
           />
         </div>
 
-        {/* Email */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Work Email:</label>
-          <br />
-          <EmailField value={email} onChange={setEmail} 
-          style={fieldStyle} />
+          <label style={{ color: "#374151", display: "block" }}>
+            Work Email:
+          </label>
+          <EmailField
+            value={email}
+            onChange={setEmail}
+            className="input-field"
+          />
         </div>
 
-        {/* Password */}
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ color: "#374151" }}>Password:</label>
-          <br />
+          <label style={{ color: "#374151", display: "block" }}>
+            Password:
+          </label>
           <PasswordField
             value={password}
             onChange={setPassword}
-            style={fieldStyle}
+            className="input-field"
           />
         </div>
 
         <button
           type="button"
-          onClick={() => {
-            navigate('/company-dashboard');
-          }}
-          style={submitStyle}
+          className="submit-button"
+          onClick={() => navigate("/company-dashboard")}
+          style={{ width: "100%", marginTop: "1rem" }}
+          /* navigation? */
         >
-          Student
+          Submit
         </button>
       </div>
     </div>
   );
 }
-
-// Shared styles for inputs
-const fieldStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.75rem",
-  border: "1px solid #D1FAE5",
-  borderRadius: "4px",
-  background: "#F0FDF4",
-  color: "#1F2937",
-};
-
-// Shared style for submit button
-const submitStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.75rem",
-  marginTop: "1rem",
-  background: "#10B981",
-  color: "#FFF",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer",
-  fontSize: "1rem",
-  fontWeight: "bold",
-};
