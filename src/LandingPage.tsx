@@ -13,12 +13,18 @@ const LandingPageTest = () => {
         <div style={styles.buttonGroup}>
           <Button
             label="Student"
-            onClick={() => navigate('/user-dashboard')}
+            onClick={() => {
+              localStorage.setItem('userType', '0');
+              navigate('/login');
+            }}
             style={styles.button}
           />
           <Button
             label="Company"
-            onClick={() => navigate('/company-dashboard')}
+            onClick={() => {
+              localStorage.setItem('userType', '1');
+              navigate('/company-login');
+            }}
             style={styles.button}
           />
         </div>

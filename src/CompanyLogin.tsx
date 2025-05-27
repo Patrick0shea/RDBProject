@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { EmailField } from "../EmailField";
+import { EmailField } from "./EmailField";
 import { PasswordField } from "./PasswordField";
 
 export function CompanyLogin() {
