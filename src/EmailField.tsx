@@ -5,7 +5,7 @@ interface EmailFieldProps {
   value: string;
   onChange: (newVal: string) => void;
   style?: React.CSSProperties;
-  classname?: string;
+  className?: string;
 }
 
 export function EmailField({ value, onChange, style }: EmailFieldProps) {

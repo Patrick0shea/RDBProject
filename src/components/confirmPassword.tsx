@@ -1,13 +1,13 @@
 import React from 'react';
 
-interface PasswordProps {
+interface confirmPasswordProps {
   value: string;
   onChange: (newVal: string) => void;
   style?: React.CSSProperties;
   className?: string;
 }
 
-export function PasswordField({ value, onChange, style }: PasswordProps) {
+export function confirmPasswordProps({ value, onChange, style }: confirmPasswordProps) {
   return (
     <input
       type="text"
