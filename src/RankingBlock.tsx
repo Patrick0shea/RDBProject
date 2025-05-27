@@ -8,8 +8,7 @@ interface RankingBlockProps {
   info2: string;
   info3: string;
   dropdownContent?: React.ReactNode;
-  rank?: number;
-  onRankChange: (id: number, newRank: number | '') => void;
+  // Removed: rank and onRankChange
 }
 
 const RankingBlock: React.FC<RankingBlockProps> = ({
@@ -19,24 +18,12 @@ const RankingBlock: React.FC<RankingBlockProps> = ({
   info2,
   info3,
   dropdownContent,
-  rank,
-  onRankChange,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   return (
     <div className="ranking-block">
       <div className="ranking-header">
-        <label>
-          Rank:
-          <input
-            type="number"
-            min="1"
-            className="rank-input"
-            value={rank || ''}
-            onChange={(e) => onRankChange(id, parseInt(e.target.value) || '')}
-          />
-        </label>
         <h2 className="ranking-title">{id}. {title}</h2>
       </div>
       <div className="ranking-row">
