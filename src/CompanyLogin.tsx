@@ -1,7 +1,7 @@
 // src/pages/CompanyLogin.tsx
 import React, { useState } from "react";
-import { EmailField } from "../components/EmailField"; /* put className?: string; */
-import { PasswordField } from "../components/PasswordField"; /* put className?: string; */
+import { EmailField } from "./EmailField"; /* put className?: string; */
+import { PasswordField } from "./PasswordField"; /* put className?: string; */
 import { useNavigate } from "react-router-dom";
 
 export function CompanyLogin() {
