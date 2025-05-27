@@ -67,8 +67,6 @@ const CompanyHomePage = () => {
               info2={`Salary: €${2500 + company.id * 100}/month`}
               info3={`No. of Days in Office: ${company.id % 3}`}
               dropdownContent={<p>{company.title} details</p>}
-              rank={undefined}
-              onRankChange={() => {}}
             />
           </div>
         ))}
@@ -110,8 +108,6 @@ const CompanyHomePage = () => {
                   <button onClick={() => handleRemove(company.id)}>Remove</button>
                 </>
               }
-              rank={undefined}
-              onRankChange={() => {}}
             />
           </div>
         ))}

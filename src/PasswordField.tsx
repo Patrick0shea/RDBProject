@@ -4,7 +4,7 @@ interface PasswordProps {
   value: string;
   onChange: (newVal: string) => void;
   style?: React.CSSProperties;
-  classname?: string;
+  className?: string;
 }
 
 export function PasswordField({ value, onChange, style }: PasswordProps) {
