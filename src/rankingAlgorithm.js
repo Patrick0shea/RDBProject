@@ -2,6 +2,7 @@ const studentCompanies = [
   ["Bence", "Unity", "Cloudflare", "Meta", "GitHub", "Zoom", "Netflix", "IBM", "Amazon", "Dropbox", "Bitbucket", "Microsoft", "Heroku", "Shopify", "Atlassian", "Salesforce", "Stripe", "MongoDB", "Riot Games", "Nvidia", "Slack", "Reddit", "Cisco", "Spotify", "Google", "Oracle", "Apple", "Intel", "Adobe", "LinkedIn"],
   ["Hugh", "GitHub", "Atlassian", "Amazon", "Apple", "Unity", "Microsoft", "Zoom", "Netflix", "Adobe", "Shopify", "MongoDB", "Heroku", "Intel", "Stripe", "Cloudflare", "Salesforce", "Spotify", "Cisco", "Bitbucket", "Oracle", "Meta", "Slack", "Dropbox", "IBM", "Google", "LinkedIn", "Reddit", "Nvidia", "Riot Games"],
   ["Javier", "Meta", "Dropbox", "Unity", "Atlassian", "IBM", "Nvidia", "Shopify", "Salesforce", "Spotify", "Google", "Riot Games", "Heroku", "Microsoft", "Cisco", "Zoom", "Stripe", "MongoDB", "Reddit", "Amazon", "LinkedIn", "Netflix", "Bitbucket", "Adobe", "Apple", "GitHub", "Slack", "Oracle", "Intel", "Cloudflare"],
+  ["Connor"],
   ["Kieran", "GitHub", "Salesforce", "Zoom", "Spotify", "Oracle", "Intel", "Nvidia", "Netflix", "Heroku", "Slack", "Meta", "Amazon", "Reddit", "IBM", "Unity", "Bitbucket", "Shopify", "Stripe", "Google", "Dropbox", "Atlassian", "Riot Games", "Cloudflare", "Apple", "MongoDB", "LinkedIn", "Microsoft", "Cisco", "Adobe"],
   ["Liam", "Shopify", "Apple", "Bitbucket", "Nvidia", "Meta", "IBM", "Amazon", "Salesforce", "Cisco", "Dropbox", "Microsoft", "Heroku", "Atlassian", "Stripe", "Unity", "Adobe", "Oracle", "Zoom", "Reddit", "Google", "Spotify", "Netflix", "MongoDB", "Slack", "Cloudflare", "GitHub", "Riot Games", "Intel", "LinkedIn"],
   ["Mason", "Salesforce", "Netflix", "Spotify", "Riot Games", "Reddit", "Cloudflare", "Microsoft", "Unity", "Bitbucket", "Cisco", "Nvidia", "Meta", "Heroku", "MongoDB", "Zoom", "Amazon", "Stripe", "Apple", "Adobe", "Shopify", "Atlassian", "Dropbox", "Oracle", "IBM", "GitHub", "Google", "Intel", "LinkedIn", "Slack"],
@@ -58,32 +59,50 @@ const jobs = [
 const rankingAlgorithm = (studentCompanies, jobs) => {
     const studentsJobs = [];
     const maxJobsPerStudent = 3;
+    const unrankedStudents = [];
+
     for (let i = 0; i < studentCompanies.length; i++) {
-        for (let j = 0; j < studentCompanies[i].length; j++) {
-            const student = studentCompanies[i][0];
-            const company = studentCompanies[i][j + 1];
+        const student = studentCompanies[i][0];
+
+        // Check if the student has no companies listed
+        if (studentCompanies[i].length === 1) {
+            unrankedStudents.push(student);
+            continue;
+        }
+
+        let jobCount = 0;
+
+        for (let j = 1; j < studentCompanies[i].length; j++) {
+            const company = studentCompanies[i][j];
             const job = jobs.find(job => job[0] === company);
+
             if (job) {
                 const spaces = job[1];
-                if (spaces > 0 && studentsJobs.filter(sj => sj[0] === student).length < maxJobsPerStudent) {
-                    // Assign the student to the company
+                if (spaces > 0 && jobCount < maxJobsPerStudent) {
                     studentsJobs.push([student, company]);
-                    // Decrease the number of spaces available for the company
                     job[1]--;
-                } else {
-                    console.log(`${company} has no spaces left for ${student}.`);
+                    jobCount++;
                 }
             } else {
                 console.log(`Company ${company} not found in the job list.`);
             }
         }
+
     }
-    return studentsJobs;
+
+    return { studentsJobs, unrankedStudents };
+};
+
+const { studentsJobs, unrankedStudents } = rankingAlgorithm(studentCompanies, jobs);
+
+// Print job assignments
+console.log("Job Assignments:");
+for (let row of studentsJobs) {
+  console.log(row.join(", "));
 }
 
-const myArray = rankingAlgorithm(studentCompanies, jobs);
-
-// Print each row as a comma-separated string
-for (let row of myArray) {
-  console.log(row.join(", "));
+// Print unranked students
+console.log("\nStudents who did not provide any company preferences:");
+for (let student of unrankedStudents) {
+  console.log(student);
 }
