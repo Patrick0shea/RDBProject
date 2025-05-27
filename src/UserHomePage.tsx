@@ -1,4 +1,3 @@
-// UserHomePage.tsx
 import { useState } from 'react';
 import RankingBlock from './RankingBlock';
 import './App.css';
@@ -12,7 +11,7 @@ const UserHomePage = () => {
   const initialStudents: User[] = [
     { id: 1, title: "Amazon" },
     { id: 2, title: "Hugh Feehan" },
-    { id: 3, title: "Patrcik O'shea" },
+    { id: 3, title: "Patrick O'Shea" },
     { id: 4, title: "Aaron McGuinness" },
     { id: 5, title: "Spunk" },
   ];
@@ -46,6 +45,12 @@ const UserHomePage = () => {
     const [moved] = updated.splice(dragIndex, 1);
     updated.splice(hoverIndex, 0, moved);
     setShortlist(updated);
+  };
+
+  const handleSubmit = () => {
+    const rankingArray = shortlist.map((student, index) => [student.title, index + 1]);
+    console.log("Ranking array:", rankingArray);
+    alert("Submitted! Check console for result.");
   };
 
   return (
@@ -97,7 +102,7 @@ const UserHomePage = () => {
             className="shortlist-item"
           >
             <RankingBlock
-              id={index + 1} // Position-based ID
+              id={index + 1}
               title={students.title}
               info1={`Location: ${students.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
               info2={`Salary: €${2500 + students.id * 100}/month`}
@@ -111,6 +116,15 @@ const UserHomePage = () => {
             />
           </div>
         ))}
+
+        {/* Only show the submit button when all students are in shortlist */}
+        {availableStudents.length === 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <button onClick={handleSubmit} style={{ padding: '10px 20px', fontSize: '16px' }}>
+              Submit Rankings
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
