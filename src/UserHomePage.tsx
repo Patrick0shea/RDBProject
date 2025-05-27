@@ -67,8 +67,6 @@ const UserHomePage = () => {
               info2={`Salary: €${2500 + students.id * 100}/month`}
               info3={`No. of Days in Office: ${students.id % 3}`}
               dropdownContent={<p>{students.title} details</p>}
-              rank={undefined}
-              onRankChange={() => {}}
             />
           </div>
         ))}
@@ -110,8 +108,6 @@ const UserHomePage = () => {
                   <button onClick={() => handleRemove(students.id)}>Remove</button>
                 </>
               }
-              rank={undefined}
-              onRankChange={() => {}}
             />
           </div>
         ))}

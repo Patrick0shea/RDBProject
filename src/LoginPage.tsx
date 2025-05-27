@@ -22,14 +22,71 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(
-      role === 'user'
-        ? '/user-dashboard'
-        : role === 'company'
-          ? '/company-dashboard'
-          : '/admin-dashboard'
-    );
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    const userType = role === 'user' ? 0 : role === 'company' ? 1 : 2;
+
+    const formData = new FormData();
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('password_confirmation', confirmPassword);
+    formData.append('linkedin', linkedin);
+    formData.append('github', github);
+    formData.append('address', address);
+    formData.append('user_type', String(userType));
+    if (cv) formData.append('cv', cv);
+
+    if (role === 'user') {
+      formData.append('student_id', studentId);
+    } else if (role === 'company') {
+      formData.append('company_name', companyName);
+    }
+
+    fetch('http://localhost:8000/register', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(async (res) => {
+        const text = await res.text();
+        let data = {};
+        try {
+          data = JSON.parse(text);
+        } catch {
+          console.warn('Response is not JSON:', text);
+        }
+
+        if (!res.ok) {
+          throw new Error((data as any).message || 'Server error occurred');
+        }
+
+        localStorage.setItem('user_type', String(userType));
+
+        if (role === 'user') {
+          navigate('/user-dashboard');
+        } else if (role === 'company') {
+          navigate('/company-dashboard');
+        } else {
+          navigate('/admin-dashboard');
+        }
+      })
+      .catch((err) => {
+        console.error('Error during fetch:', err);
+        alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
+      });
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCv(e.target.files[0]);
+    }
+  };
+
   return (
     <div
       className="dashboard-container"
