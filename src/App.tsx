@@ -6,6 +6,7 @@ import UserDashboard from './UserDashboard3';
 import CompanyDashboard from './CompanyDashboard3';
 import AdminDashboard from './AdminDashboard3';
 import LandingPage from './LandingPage';
+import { CompanyLogin } from './CompanyLogin';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/company-login" element={<CompanyLogin />} />
         <Route path="/user-dashboard/*" element={<UserDashboard />} />
         <Route path="/company-dashboard/*" element={<CompanyDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

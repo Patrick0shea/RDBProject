@@ -234,13 +234,19 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        <button type="submit" style={styles.button}>
-          Submit
+        <button
+          type="button"
+          onClick={() => {
+            navigate('/user-dashboard');
+          }}
+          style={styles.button}
+        >
+          Student
         </button>
       </form>
     </div>
   );
-};
+};  
 
 export default LoginPage;
 
