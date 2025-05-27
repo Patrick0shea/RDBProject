@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { EmailField } from "./EmailField";
-import { PasswordField } from "./PasswordField";
-
+import { EmailField } from "./EmailField.tsx";
+import { PasswordField } from "./PasswordField.tsx";
+import { useNavigate } from "react-router-dom";
 export function CompanyLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,7 +10,7 @@ export function CompanyLogin() {
   const [jobDescription, setjobDescription] = useState("");
   const [jobSalary, setjobSalary] = useState("");
 
-
+  const navigate = useNavigate();
 
   return (
     <div
@@ -121,7 +121,15 @@ export function CompanyLogin() {
           />
         </div>
 
-        <button style={submitStyle}>Submit</button>
+        <button
+          type="button"
+          onClick={() => {
+            navigate('/company-dashboard');
+          }}
+          style={submitStyle}
+        >
+          Student
+        </button>
       </div>
     </div>
   );
