@@ -2,65 +2,80 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
-  const [aboutMe, setAboutMe] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [github, setGithub] = useState('');
   const [address, setAddress] = useState('');
   const [cv, setCv] = useState<File | null>(null);
   const [role, setRole] = useState('user');
+  const [studentId, setStudentId] = useState('');
+  const [companyName, setCompanyName] = useState('');
 
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    const userType = role === 'user' ? 0 : role === 'company' ? 1 : 2;
+
     const formData = new FormData();
-    formData.append('aboutMe', aboutMe);
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
     formData.append('email', email);
     formData.append('password', password);
+    formData.append('password_confirmation', confirmPassword);
     formData.append('linkedin', linkedin);
     formData.append('github', github);
     formData.append('address', address);
-    formData.append('role', role);
+    formData.append('user_type', String(userType));
     if (cv) formData.append('cv', cv);
 
-   fetch('/api/register', {
-     method: 'POST',
-     body: formData,
-   })
-     .then(async (res) => {
-       const text = await res.text(); // Read the raw response first
-       let data = {};
+    if (role === 'user') {
+      formData.append('student_id', studentId);
+    } else if (role === 'company') {
+      formData.append('company_name', companyName);
+    }
 
-       try {
-         data = JSON.parse(text); // Try parsing if possible
-       } catch {
-         console.warn('Response is not JSON:', text);
-       }
+    fetch('http://localhost:8000/register', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(async (res) => {
+        const text = await res.text();
+        let data = {};
+        try {
+          data = JSON.parse(text);
+        } catch {
+          console.warn('Response is not JSON:', text);
+        }
 
-       if (!res.ok) {
-         throw new Error((data as any).message || 'Server error occurred');
-       }
+        if (!res.ok) {
+          throw new Error((data as any).message || 'Server error occurred');
+        }
 
-       // Save role in local storage
-       localStorage.setItem('user_type', role);
+        localStorage.setItem('user_type', String(userType));
 
-       // Navigate to the appropriate dashboard
-       if (role === 'user') {
-         navigate('/user-dashboard');
-       } else if (role === 'company') {
-         navigate('/company-dashboard');
-       } else if (role === 'admin') {
-         navigate('/admin-dashboard');
-       }
-     })
-     .catch((err) => {
-       console.error('Error during fetch:', err);
-       alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
-     });
-
+        if (role === 'user') {
+          navigate('/user-dashboard');
+        } else if (role === 'company') {
+          navigate('/company-dashboard');
+        } else {
+          navigate('/admin-dashboard');
+        }
+      })
+      .catch((err) => {
+        console.error('Error during fetch:', err);
+        alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
+      });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +89,6 @@ const LoginPage: React.FC = () => {
       <form onSubmit={handleSubmit} style={styles.form}>
         <h1 style={styles.header}>ISE Residency Ranking System</h1>
 
-        {/* Role Dropdown */}
         <label style={styles.label}>
           Select Role
           <select
@@ -90,14 +104,26 @@ const LoginPage: React.FC = () => {
         </label>
 
         <label style={styles.label}>
-          About Me
+          First Name
           <input
             type="text"
-            value={aboutMe}
-            onChange={e => setAboutMe(e.target.value)}
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
             required
             style={styles.input}
-            placeholder="Tell us about yourself in 100 words"
+            placeholder="First Name"
+          />
+        </label>
+
+        <label style={styles.label}>
+          Last Name
+          <input
+            type="text"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            required
+            style={styles.input}
+            placeholder="Last Name"
           />
         </label>
 
@@ -122,6 +148,18 @@ const LoginPage: React.FC = () => {
             required
             style={styles.input}
             placeholder="Enter your password"
+          />
+        </label>
+
+        <label style={styles.label}>
+          Confirm Password
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            required
+            style={styles.input}
+            placeholder="Re-enter your password"
           />
         </label>
 
@@ -158,6 +196,34 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
+        {role === 'user' && (
+          <label style={styles.label}>
+            Student ID
+            <input
+              type="text"
+              value={studentId}
+              onChange={e => setStudentId(e.target.value)}
+              style={styles.input}
+              placeholder="Enter your student ID"
+              required
+            />
+          </label>
+        )}
+
+        {role === 'company' && (
+          <label style={styles.label}>
+            Company Name
+            <input
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              required
+              style={styles.input}
+              placeholder="Enter your company name"
+            />
+          </label>
+        )}
+
         <label style={styles.label}>
           Upload CV
           <input
@@ -182,12 +248,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: 'flex',
     width: '100vw',
-    height: '100vh',
+    minHeight: '100vh', // ✅ change from height to minHeight
     alignItems: 'center',
     justifyContent: 'center',
     background: '#002D40',
     padding: '2rem',
     boxSizing: 'border-box',
+    overflowY: 'auto', // ✅ allow scroll if content is too tall
   },
   form: {
     width: '100%',
