@@ -51,7 +51,11 @@ const LoginPage: React.FC = () => {
     })
       .then(async (res) => {
         const text = await res.text();
-        let data = {};
+        interface ResponseData {
+          message?: string;
+          [key: string]: unknown;
+        }
+        let data: ResponseData = {};
         try {
           data = JSON.parse(text);
         } catch {
@@ -59,7 +63,7 @@ const LoginPage: React.FC = () => {
         }
 
         if (!res.ok) {
-          throw new Error((data as any).message || 'Server error occurred');
+          throw new Error(data.message || 'Server error occurred');
         }
 
         localStorage.setItem('user_type', String(userType));
