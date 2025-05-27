@@ -9,19 +9,19 @@ interface User {
 }
 
 const UserHomePage = () => {
-  const initialStudents: Students[] = [
-    { id: 1, title: "Sam Mcloughlin" },
+  const initialStudents: User[] = [
+    { id: 1, title: "Amazon" },
     { id: 2, title: "Hugh Feehan" },
     { id: 3, title: "Patrcik O'shea" },
     { id: 4, title: "Aaron McGuinness" },
     { id: 5, title: "Spunk" },
   ];
 
-  const [availableStudents, setAvailableStudents] = useState<Students[]>(initialStudents);
-  const [shortlist, setShortlist] = useState<Students[]>([]);
-  const [dragged, setDragged] = useState<Students | null>(null);
+  const [availableStudents, setAvailableStudents] = useState<User[]>(initialStudents);
+  const [shortlist, setShortlist] = useState<User[]>([]);
+  const [dragged, setDragged] = useState<User | null>(null);
 
-  const handleDragStart = (students: Students) => {
+  const handleDragStart = (students: User) => {
     setDragged(students);
   };
 
