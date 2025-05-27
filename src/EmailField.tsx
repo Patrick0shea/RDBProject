@@ -1,10 +1,11 @@
-// src/components/EmailField.tsx
+// src/EmailField.tsx
 import React from 'react';
 
 interface EmailFieldProps {
   value: string;
   onChange: (newVal: string) => void;
   style?: React.CSSProperties;
+  classname?: string;
 }
 
 export function EmailField({ value, onChange, style }: EmailFieldProps) {
