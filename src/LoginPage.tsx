@@ -79,13 +79,8 @@ const LoginPage: React.FC = () => {
         console.error('Error during fetch:', err);
         alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
       });
-  };
+  }; 
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCv(e.target.files[0]);
-    }
-  };
 
   return (
     <div
@@ -97,7 +92,7 @@ const LoginPage: React.FC = () => {
         className="company-list"
         style={{ maxWidth: '500px', padding: '2.5rem' }}
       >
-        <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>ISE Residency Ranking System</h1>
+        <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Student Account</h1>
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           Select Role
