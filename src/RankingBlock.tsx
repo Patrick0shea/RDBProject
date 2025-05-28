@@ -4,9 +4,8 @@ import './App.css';
 interface RankingBlockProps {
   id: number;
   title: string;
-  info1: string;
-  info2: string;
-  info3: string;
+  company_name: string;
+  salary: string;
   dropdownContent?: React.ReactNode;
   // Removed: rank and onRankChange
 }
@@ -14,9 +13,8 @@ interface RankingBlockProps {
 const RankingBlock: React.FC<RankingBlockProps> = ({
   id,
   title,
-  info1,
-  info2,
-  info3,
+  company_name,
+  salary,
   dropdownContent,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -27,9 +25,8 @@ const RankingBlock: React.FC<RankingBlockProps> = ({
         <h2 className="ranking-title">{id}. {title}</h2>
       </div>
       <div className="ranking-row">
-        <span>{info1}</span>
-        <span>{info2}</span>
-        <span>{info3}</span>
+        <span>{company_name}</span>
+        <span>{salary}</span>
       </div>
       <button className="dropdown-button" onClick={() => setShowDropdown(!showDropdown)}>
         {showDropdown ? "Hide Details" : "Show Details"}

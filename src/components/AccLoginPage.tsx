@@ -7,15 +7,42 @@ const AccLoginPage: React.FC = () => {
   const [role, setRole] = useState<'user' | 'company' | 'admin'>('user');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(
-      role === 'user'
-        ? '/user-dashboard'
-        : role === 'company'
-        ? '/company-dashboard'
-        : '/admin-dashboard'
-    );
+
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        credentials: 'include', // Required to send cookies
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const data = await response.json();
+      console.log('Login successful:', data);
+
+      // Navigate based on role
+      navigate(
+        role === 'user'
+          ? '/user-dashboard'
+          : role === 'company'
+          ? '/company-dashboard'
+          : '/admin-dashboard'
+      );
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please check your credentials.');
+    }
   };
 
   return (

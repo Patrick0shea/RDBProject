@@ -44,6 +44,7 @@ const LoginPage: React.FC = () => {
 
     fetch('http://localhost:8000/register', {
       method: 'POST',
+      credentials: 'include',
       body: formData,
     })
       .then(async (res) => {

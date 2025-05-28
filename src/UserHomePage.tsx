@@ -5,27 +5,21 @@ import './App.css';
 interface User {
   id: number;
   title: string;
+  salary: Int16Array;
+  company_name: string;
 }
 
 const UserHomePage = () => {
-  const initialStudents: User[] = [
-    { id: 1, title: "Amazon" },
-    { id: 2, title: "Hugh Feehan" },
-    { id: 3, title: "Patrick O'Shea" },
-    { id: 4, title: "Aaron McGuinness" },
-    { id: 5, title: "Spunk" },
-  ];
-
-  const [availableStudents, setAvailableStudents] = useState<User[]>(initialStudents);
+  const [availableStudents, setAvailableStudents] = useState<User[]>([]);
   const [shortlist, setShortlist] = useState<User[]>([]);
   const [dragged, setDragged] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Add a state to store residencies data if needed
   const [residencies, setResidencies] = useState<any[]>([]);
 
-  // Fetch residencies on component mount
   useEffect(() => {
-    fetch('http://localhost:8000/get-residencies')
+    fetch('http://localhost:8000/get-residencies', { credentials: 'include'})
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -33,13 +27,21 @@ const UserHomePage = () => {
         return response.json();
       })
       .then(data => {
-        console.log('Residencies data:', data);
-        setResidencies(data); // store data if you want to use it later
+        const users = data.map((item: any) => ({
+          id: item.id,
+          title: item.description,
+          salary: item.salary,
+          company_name: item.company_name
+        }));
+        setAvailableStudents(users);
       })
       .catch(error => {
         console.error('Fetch error:', error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, []); // empty dependency array means it runs once on mount
+  }, []);
 
   // ...rest of your handlers and render code remain unchanged
 
@@ -71,33 +73,60 @@ const UserHomePage = () => {
   };
 
   const handleSubmit = () => {
-    const rankingArray = shortlist.map((student, index) => [student.title, index + 1]);
-    console.log("Ranking array:", rankingArray);
-    alert("Submitted! Check console for result.");
+    const rankingPayload = shortlist.map((student, index) => ({
+      residency_id: student.id,
+      position: index + 1,
+    }));
+
+    fetch('http://localhost:8000/submit-rankings', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(rankingPayload),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to submit rankings');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Server response:', data);
+        alert('Rankings submitted successfully!');
+      })
+      .catch(error => {
+        console.error('Submission error:', error);
+        alert('Failed to submit rankings. Please try again.');
+      });
   };
 
   return (
     <div className="dashboard-container">
       {/* Left Column */}
       <div className="students-list scrollable">
-        <h2>Available Students</h2>
-        {availableStudents.map(students => (
-          <div
-            key={students.id}
-            draggable
-            onDragStart={() => handleDragStart(students)}
-            className="draggable-block"
-          >
-            <RankingBlock
-              id={students.id}
-              title={students.title}
-              info1={`Location: ${students.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
-              info2={`Salary: €${2500 + students.id * 100}/month`}
-              info3={`No. of Days in Office: ${students.id % 3}`}
-              dropdownContent={<p>{students.title} details</p>}
-            />
-          </div>
-        ))}
+        <h2>Available Residencies</h2>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          availableStudents.map(students => (
+            <div
+              key={students.id}
+              draggable
+              onDragStart={() => handleDragStart(students)}
+              className="draggable-block"
+            >
+              <RankingBlock
+                id={students.id}
+                title={students.title}
+                company_name={`Company: ${students.company_name}`}
+                salary={`Salary: €${students.salary} /month`}
+                dropdownContent={<p>{students.title} details</p>}
+              />
+            </div>
+          ))
+        )}
       </div>
 
       {/* Right Column */}
