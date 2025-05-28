@@ -28,8 +28,6 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    const userType = role === 'user' ? 0 : role === 'company' ? 1 : 2;
-
     const formData = new FormData();
     formData.append('first_name', firstName);
     formData.append('last_name', lastName);
@@ -39,14 +37,10 @@ const LoginPage: React.FC = () => {
     formData.append('linkedin', linkedin);
     formData.append('github', github);
     formData.append('address', address);
-    formData.append('user_type', String(userType));
+    formData.append('user_type', '0');
     if (cv) formData.append('cv', cv);
 
-    if (role === 'user') {
-      formData.append('student_id', studentId);
-    } else if (role === 'company') {
-      formData.append('company_name', companyName);
-    }
+    formData.append('student_id', studentId);
 
     fetch('http://localhost:8000/register', {
       method: 'POST',
@@ -65,15 +59,7 @@ const LoginPage: React.FC = () => {
           throw new Error((data as any).message || 'Server error occurred');
         }
 
-        localStorage.setItem('user_type', String(userType));
-
-        if (role === 'user') {
-          navigate('/user-dashboard');
-        } else if (role === 'company') {
-          navigate('/company-dashboard');
-        } else {
-          navigate('/admin-dashboard');
-        }
+        navigate('/user-dashboard');
       })
       .catch((err) => {
         console.error('Error during fetch:', err);
