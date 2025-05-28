@@ -30,6 +30,14 @@ const LandingPageTest: React.FC = () => {
             }}
             className="submit-button"
           />
+            <Button
+            label="Admin"
+            onClick={() => {
+              localStorage.setItem('userType', '2');
+              navigate('/admin-login-page');
+            }}
+            className="submit-button"
+          />
         </div>
       </div>
     </div>

@@ -5,7 +5,8 @@ interface ButtonProps {
   label: string;
   onClick: () => void;
   style?: React.CSSProperties;
-  className?: string;}
+  className?: string;
+}
 
 export function Button({ label, onClick, style }: ButtonProps) {
   return (

@@ -48,6 +48,12 @@ const CompanyHomePage = () => {
     setShortlist(updated);
   };
 
+  const handleSubmit = () => {
+    const rankingArray = shortlist.map((company, index) => [company.title, index + 1]);
+    console.log("Ranking array:", rankingArray);
+    alert("Submitted! Check console for result.");
+  };
+
   return (
     <div className="dashboard-container">
       {/* Left Column */}
@@ -97,7 +103,7 @@ const CompanyHomePage = () => {
             className="shortlist-item"
           >
             <RankingBlock
-              id={index + 1} // Position-based ID
+              id={index + 1}
               title={company.title}
               info1={`Location: ${company.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
               info2={`Salary: €${2500 + company.id * 100}/month`}
@@ -111,6 +117,13 @@ const CompanyHomePage = () => {
             />
           </div>
         ))}
+        {availableCompanies.length === 0 && (
+          <div style={{ marginTop: '20px'}}>
+            <button onClick={handleSubmit} style={{ padding: '10px 20px', fontSize: '16px' }}>
+              Submit Rankings
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
