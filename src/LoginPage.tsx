@@ -11,9 +11,7 @@ const LoginPage: React.FC = () => {
   const [github, setGithub] = useState('');
   const [address, setAddress] = useState('');
   const [cv, setCv] = useState<File | null>(null);
-  const [role, setRole] = useState('user');
   const [studentId, setStudentId] = useState('');
-  const [companyName, setCompanyName] = useState('');
 
   const navigate = useNavigate();
 
@@ -25,8 +23,6 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    const userType = role === 'user' ? 0 : role === 'company' ? 1 : 2;
-
     const formData = new FormData();
     formData.append('first_name', firstName);
     formData.append('last_name', lastName);
@@ -36,14 +32,10 @@ const LoginPage: React.FC = () => {
     formData.append('linkedin', linkedin);
     formData.append('github', github);
     formData.append('address', address);
-    formData.append('user_type', String(userType));
+    formData.append('user_type', '0');
     if (cv) formData.append('cv', cv);
 
-    if (role === 'user') {
-      formData.append('student_id', studentId);
-    } else if (role === 'company') {
-      formData.append('company_name', companyName);
-    }
+    formData.append('student_id', studentId);
 
     fetch('http://localhost:8000/register', {
       method: 'POST',
@@ -62,15 +54,7 @@ const LoginPage: React.FC = () => {
           throw new Error((data as any).message || 'Server error occurred');
         }
 
-        localStorage.setItem('user_type', String(userType));
-
-        if (role === 'user') {
-          navigate('/user-dashboard');
-        } else if (role === 'company') {
-          navigate('/company-dashboard');
-        } else {
-          navigate('/admin-dashboard');
-        }
+        navigate('/user-dashboard');
       })
       .catch((err) => {
         console.error('Error during fetch:', err);
@@ -88,20 +72,6 @@ const LoginPage: React.FC = () => {
     <div style={styles.container}>
       <form onSubmit={handleSubmit} style={styles.form}>
         <h1 style={styles.header}>ISE Residency Ranking System</h1>
-
-        <label style={styles.label}>
-          Select Role
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            style={styles.input}
-            required
-          >
-            <option value="user">User</option>
-            <option value="company">Company</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
 
         <label style={styles.label}>
           First Name
@@ -186,7 +156,7 @@ const LoginPage: React.FC = () => {
         </label>
 
         <label style={styles.label}>
-          Home Address
+          Address
           <input
             type="text"
             value={address}
@@ -196,33 +166,17 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {role === 'user' && (
-          <label style={styles.label}>
-            Student ID
-            <input
-              type="text"
-              value={studentId}
-              onChange={e => setStudentId(e.target.value)}
-              style={styles.input}
-              placeholder="Enter your student ID"
-              required
-            />
-          </label>
-        )}
-
-        {role === 'company' && (
-          <label style={styles.label}>
-            Company Name
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              required
-              style={styles.input}
-              placeholder="Enter your company name"
-            />
-          </label>
-        )}
+        <label style={styles.label}>
+          Student ID
+          <input
+            type="text"
+            value={studentId}
+            onChange={e => setStudentId(e.target.value)}
+            style={styles.input}
+            placeholder="Enter your student ID"
+            required
+          />
+        </label>
 
         <label style={styles.label}>
           Upload CV
@@ -234,14 +188,8 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        <button
-          type="button"
-          onClick={() => {
-            navigate('/user-dashboard');
-          }}
-          style={styles.button}
-        >
-          Student
+        <button type="submit" style={styles.button}>
+          Submit
         </button>
       </form>
     </div>

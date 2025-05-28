@@ -1,5 +1,4 @@
-// UserHomePage.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RankingBlock from './RankingBlock';
 import './App.css';
 
@@ -20,6 +19,29 @@ const UserHomePage = () => {
   const [availableStudents, setAvailableStudents] = useState<User[]>(initialStudents);
   const [shortlist, setShortlist] = useState<User[]>([]);
   const [dragged, setDragged] = useState<User | null>(null);
+
+  // Add a state to store residencies data if needed
+  const [residencies, setResidencies] = useState<any[]>([]);
+
+  // Fetch residencies on component mount
+  useEffect(() => {
+    fetch('http://localhost:8000/get-residencies')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Residencies data:', data);
+        setResidencies(data); // store data if you want to use it later
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
+  }, []); // empty dependency array means it runs once on mount
+
+  // ...rest of your handlers and render code remain unchanged
 
   const handleDragStart = (students: User) => {
     setDragged(students);
