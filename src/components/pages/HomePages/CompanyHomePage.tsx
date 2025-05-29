@@ -3,7 +3,6 @@ import { useState } from 'react';
 import RankingBlock from '../../shared/RankingBlock';
 import '../../../styles/App.css';
 
-
 interface Company {
   id: number;
   title: string;
