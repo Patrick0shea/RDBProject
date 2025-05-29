@@ -19,31 +19,47 @@ const RankingBlock: React.FC<RankingBlockProps> = ({
   dropdownContent,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  const toggleDropdown = () => {
+    try {
+      setIsOpen(!isOpen);
+    } catch (error) {
+      console.error('Error toggling dropdown:', error);
+      setHasError(true);
+    }
+  };
 
   return (
     <div className="ranking-block">
-      <div
-        className="ranking-block-header"
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'pointer',
-        }}
-      >
+      {hasError ? (
+        <div style={{ color: 'red' }}>Something went wrong. Please try again later.</div>
+      ) : (
         <div>
-          <strong>{id}. {title}</strong>
-          <div>{info1}</div>
-          <div>{info2}</div>
-          <div>{info3}</div>
-        </div>
-        <div style={{ fontSize: '1.2rem' }}>{isOpen ? '▲' : '▼'}</div>
-      </div>
+          <div
+            className="ranking-block-header"
+            onClick={toggleDropdown}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <div>
+              <strong>{id}. {title || 'Untitled'}</strong>
+              <div>{info1 || 'No location info'}</div>
+              <div>{info2 || 'No salary info'}</div>
+              <div>{info3 || 'No office info'}</div>
+            </div>
+            <div style={{ fontSize: '1.2rem' }}>{isOpen ? '▲' : '▼'}</div>
+          </div>
 
-      {isOpen && dropdownContent && (
-        <div className="ranking-block-dropdown" style={{ marginTop: '0.5rem' }}>
-          {dropdownContent}
+          {isOpen && dropdownContent && (
+            <div className="ranking-block-dropdown" style={{ marginTop: '0.5rem' }}>
+              {dropdownContent}
+            </div>
+          )}
         </div>
       )}
     </div>

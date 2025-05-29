@@ -1,4 +1,3 @@
-// src/components/Button.tsx
 import React from 'react';
 
 interface ButtonProps {
@@ -6,14 +5,34 @@ interface ButtonProps {
   onClick: () => void;
   style?: React.CSSProperties;
   className?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
-export function Button({ label, onClick, style, className }: ButtonProps) {
+export const Button: React.FC<ButtonProps> = ({
+  label,
+  onClick,
+  style,
+  className = '',
+  type = 'button',
+}) => {
+  const handleClick = () => {
+    try {
+      onClick();
+    } catch (error) {
+      console.error('Error occurred during button click:', error);
+      // Optionally, you could show a UI message here
+      alert('An unexpected error occurred. Please try again.');
+    }
+  };
+
   return (
-    <button onClick={onClick}
-    className={className}
-    style={style}>
+    <button
+      type={type}
+      onClick={handleClick}
+      className={`btn ${className}`.trim()}
+      style={style}
+    >
       {label}
     </button>
-);
-}
+  );
+};

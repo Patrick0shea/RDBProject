@@ -6,8 +6,13 @@ export interface Residency {
   company_name: string;
 }
 
+// Optional error field for reusable components
+export interface WithError {
+  error?: string | null;
+}
+
 // For a shortlist column (generic items with drag/drop)
-export interface ShortlistColumnProps {
+export interface ShortlistColumnProps extends WithError {
   items: Residency[];
   draggedItem: Residency | null;
   setDraggedItem: (item: Residency | null) => void;
@@ -19,7 +24,7 @@ export interface ShortlistColumnProps {
 }
 
 // For available items list
-export interface AvailableListProps {
+export interface AvailableListProps extends WithError {
   items: Residency[];
   handleDragStart: (item: Residency) => void;
 }

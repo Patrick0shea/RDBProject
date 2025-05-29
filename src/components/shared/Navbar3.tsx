@@ -8,7 +8,7 @@ const Navbar3 = () => {
     try {
       const response = await fetch('http://localhost:8000/logout', {
         method: 'POST',
-        credentials: 'include', // Important for sending cookies
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -17,12 +17,15 @@ const Navbar3 = () => {
 
       if (response.ok) {
         alert('Logged out successfully');
-        navigate('/login'); // Redirect to login
+        navigate('/login');
       } else {
-        console.error('Logout failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Logout failed:', errorData);
+        alert(`Logout failed: ${errorData.message || 'Unexpected error occurred'}`);
       }
     } catch (error) {
       console.error('Error logging out:', error);
+      alert('An error occurred while logging out. Please check your connection and try again.');
     }
   };
 
@@ -36,9 +39,11 @@ const Navbar3 = () => {
         <li><Link to="/acc-login-page">Acc Login Page</Link></li>
         <li><Link to="/admin-dashboard">Admin dashboard</Link></li>
         <li><Link to="/admin-login-page">Admin Login Page</Link></li>
-
         <li>
-          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer' }}>
+          <button
+            onClick={handleLogout}
+            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer' }}
+          >
             Logout
           </button>
         </li>
