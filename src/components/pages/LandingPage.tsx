@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../shared/Button';
-import '../styles/App.css';
+import '../../styles/App.css';
 
 const LandingPageTest: React.FC = () => {
   const navigate = useNavigate();
