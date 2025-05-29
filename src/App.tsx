@@ -1,14 +1,14 @@
 // App.tsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar3';
-import LoginPage from './LoginPage';
-import UserDashboard from './UserDashboard3';
-import CompanyDashboard from './CompanyDashboard3';
-import AdminDashboard3 from './AdminDashboard3';
-import LandingPage from './LandingPage';
-import { CompanyLogin } from './CompanyLogin';
-import AccLoginPage from './components/AccLoginPage';
-import AdminLoginPage from './AdminLoginPage';
+import Navbar from './components/shared/Navbar3';
+import LoginPage from './components/pages/Login/LoginPage';
+import UserDashboard from './components/pages/dashboards/UserDashboard3';
+import CompanyDashboard from './components/pages/dashboards/CompanyDashboard3';
+import AdminDashboard3 from './components/pages/dashboards/AdminDashboard3';
+import LandingPage from './components/pages/LandingPage';
+import { CompanyLogin } from './components/pages/Login/CompanyLogin';
+import AccLoginPage from './components/pages/Login/AccLoginPage';
+import AdminLoginPage from './components/pages/Login/AdminLoginPage';
 
 function App() {
   return (

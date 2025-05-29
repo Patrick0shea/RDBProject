@@ -99,7 +99,11 @@ const AdminDashboard: React.FC = () => {
   const toggleDetails = (id: string) => {
     setOpenStudentIds((prev) => {
       const newSet = new Set(prev);
-      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
       return newSet;
     });
   };
@@ -107,7 +111,11 @@ const AdminDashboard: React.FC = () => {
   const toggleCompanyDetails = (id: string) => {
     setOpenCompanyIds((prev) => {
       const newSet = new Set(prev);
-      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
       return newSet;
     });
   };
