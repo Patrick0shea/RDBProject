@@ -204,7 +204,18 @@ const filteredFeedback = feedbackList.filter(
   );
 
   return (
-  <div style={{ padding: '2rem' }}>
+   <div style={{ padding: '2rem' }}>
+    {/* Admin Dashboard Heading */}
+    <h1 style={{
+      fontSize: '2.5rem',
+      fontWeight: 'bold',
+      color: '#0F5132',
+      marginBottom: '2rem',
+      textAlign: 'center',
+    }}>
+      Admin Dashboard
+    </h1>
+  
     <div className="dashboard-container" style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
       {/* Student Section */}
       <div className="ranking-block scrollable" style={{ flex: 1, minWidth: '320px' }}>
