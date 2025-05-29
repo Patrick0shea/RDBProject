@@ -1,130 +1,76 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-interface LoginFormProps {
+type LoginFormProps = {
   title: string;
-  endpoint: string;
-  userType: string;
-  onSuccess: () => void;
-}
+  role: 'user' | 'company' | 'admin';
+  email: string;
+  password: string;
+  onEmailChange: (email: string) => void;
+  onPasswordChange: (password: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+};
 
-const LoginForm: React.FC<LoginFormProps> = ({ title, endpoint, userType, onSuccess }) => {
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(`http://localhost:8000/${endpoint}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) throw new Error(data.message || 'Login failed');
-
-      localStorage.setItem('user_type', userType);
-      onSuccess();
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
+export const LoginForm: React.FC<LoginFormProps> = ({
+  title,
+  role,
+  email,
+  password,
+  onEmailChange,
+  onPasswordChange,
+  onSubmit,
+}) => {
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleLogin} style={styles.form}>
-        <h1 style={styles.header}>{title}</h1>
+    <div
+      className="dashboard-container"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <form
+        onSubmit={onSubmit}
+        className="company-list"
+        style={{ width: '90%', maxWidth: '500px', padding: '2.5rem' }}
+      >
+        <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>{title}</h1>
 
-        <label style={styles.label}>
-          Name
+        <label style={{ display: 'block', marginBottom: '1rem' }}>
+          Email
           <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
+            type="email"
+            value={email}
+            onChange={(e) => onEmailChange(e.target.value)}
+            placeholder="you@example.com"
+            className="input-field"
             required
-            style={styles.input}
-            placeholder="Enter your name"
+            style={{ width: '100%', marginTop: '0.5rem' }}
           />
         </label>
 
-        <label style={styles.label}>
+        <label style={{ display: 'block', marginBottom: '1rem' }}>
           Password
           <input
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            style={styles.input}
+            onChange={(e) => onPasswordChange(e.target.value)}
             placeholder="Enter your password"
+            className="input-field"
+            required
+            style={{ width: '100%', marginTop: '0.5rem' }}
           />
         </label>
 
-        <button type="submit" style={styles.button}>
-          Login
+        <button
+          type="submit"
+          className="submit-button"
+          style={{ width: '100%', marginTop: '1.5rem' }}
+        >
+          Submit
         </button>
       </form>
     </div>
   );
-};
-
-export default LoginForm;
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    width: '100vw',
-    minHeight: '100vh',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#002D40',
-    padding: '2rem',
-    boxSizing: 'border-box',
-    overflowY: 'auto',
-  },
-  form: {
-    width: '100%',
-    maxWidth: '400px',
-    padding: '2.5rem',
-    borderRadius: '12px',
-    background: '#F0FDF4',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-  },
-  header: {
-    marginBottom: '1.5rem',
-    textAlign: 'center',
-    fontSize: '2rem',
-    color: '#0F5132',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '1.25rem',
-    fontSize: '1rem',
-    color: '#1F2937',
-  },
-  input: {
-    display: 'block',
-    width: '100%',
-    padding: '0.75rem',
-    marginTop: '0.5rem',
-    fontSize: '1rem',
-    borderRadius: '6px',
-    border: '1px solid #A3E635',
-    boxSizing: 'border-box',
-    background: '#FFFFFF',
-    color: '#1F2937',
-  },
-  button: {
-    width: '100%',
-    padding: '0.75rem',
-    fontSize: '1rem',
-    borderRadius: '6px',
-    border: 'none',
-    background: '#22C55E',
-    color: '#FFFFFF',
-    cursor: 'pointer',
-    marginTop: '1.5rem',
-  },
 };
