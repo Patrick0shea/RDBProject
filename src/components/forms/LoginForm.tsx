@@ -1,31 +1,33 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AdminDashboard from './AdminDashboard3';
 
-const AdminLoginPage: React.FC = () => {
+interface LoginFormProps {
+  title: string;
+  endpoint: string;
+  userType: string;
+  onSuccess: () => void;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ title, endpoint, userType, onSuccess }) => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const loginData = { name, password };
-
     try {
-      const response = await fetch('http://localhost:8000/admin-login', {
+      const response = await fetch(`http://localhost:8000/${endpoint}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData),
+        body: JSON.stringify({ name, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
-      localStorage.setItem('user_type', '2');
-      navigate('/admin-dashboard');
+      localStorage.setItem('user_type', userType);
+      onSuccess();
     } catch (error: any) {
       alert(error.message);
     }
@@ -34,7 +36,7 @@ const AdminLoginPage: React.FC = () => {
   return (
     <div style={styles.container}>
       <form onSubmit={handleLogin} style={styles.form}>
-        <h1 style={styles.header}>Admin Login</h1>
+        <h1 style={styles.header}>{title}</h1>
 
         <label style={styles.label}>
           Name
@@ -60,21 +62,15 @@ const AdminLoginPage: React.FC = () => {
           />
         </label>
 
-<button 
-type='button'
-style={styles.button} 
-onClick={() => {
-            navigate('/admin-dashboard3');
-          }}>
-  Login
-</button>
-
+        <button type="submit" style={styles.button}>
+          Login
+        </button>
       </form>
     </div>
   );
 };
 
-export default AdminLoginPage;
+export default LoginForm;
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {

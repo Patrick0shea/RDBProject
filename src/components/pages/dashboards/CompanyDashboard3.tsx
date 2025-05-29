@@ -1,16 +1,15 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import CompanyHomePage from "./CompanyHomePage";
+import CompanyHomePage from "../HomePages/CompanyHomePage";
 
-const CompanyDashboard3: React.FC = () => {
+const CompanyDashboard: React.FC = () => {
   return (
     <div className="App">
       <Routes>
-        {/* Relative path: this matches exactly /company-dashboard */}
         <Route path="/" element={<CompanyHomePage />} />
       </Routes>
     </div>
   );
 };
 
-export default CompanyDashboard3;
+export default CompanyDashboard;

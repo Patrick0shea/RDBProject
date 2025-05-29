@@ -1,7 +1,7 @@
 // CompanyHomePage.tsx
 import { useState } from 'react';
-import RankingBlock from './RankingBlock';
-import './App.css';
+import RankingBlock from '../../shared/RankingBlock';
+import '../../../styles/App.css';
 
 interface Company {
   id: number;
