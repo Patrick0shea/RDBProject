@@ -7,7 +7,7 @@ const UserLoginPage: React.FC = () => {
   return (
     <LoginForm
       title="User Login"
-      endpoint="user-login"
+      endpoint="login"
       userType="0"
       onSuccess={() => navigate('/user-dashboard')}
     />

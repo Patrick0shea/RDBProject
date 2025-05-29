@@ -8,7 +8,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ title, endpoint, userType, onSuccess }) => {
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -19,7 +19,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ title, endpoint, userType, onSucc
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -39,14 +39,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ title, endpoint, userType, onSucc
         <h1 style={styles.header}>{title}</h1>
 
         <label style={styles.label}>
-          Name
+          Email
           <input
-            type="text"
-            value={name}
-            onChange={e => setName(e.target.value)}
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             required
             style={styles.input}
-            placeholder="Enter your name"
+            placeholder="Enter your email"
           />
         </label>
 
