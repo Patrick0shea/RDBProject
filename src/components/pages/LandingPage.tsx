@@ -2,43 +2,36 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../shared/Button';
+import '../../styles/App.css';
 
 const LandingPageTest: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleClick = (type: '0'|'1'|'2', path: string) => {
+    localStorage.setItem('userType', type);
+    navigate(path);
+  };
+
   return (
-    <div
-      className="dashboard-container"
-      style={{ height: '100vh', justifyContent: 'center', alignItems: 'center' }} // had to change a bit for height and centering 
-    >
-      <div className="company-list">
-        <h2 className="ranking-title">Who Are You?</h2>
-        <div className="ranking-row">
-          <Button
-            label="Student"
-            onClick={() => {
-              localStorage.setItem('userType', '0');
-              navigate('/login');
-            }}
-            className="submit-button"
-          />
-          <Button
-            label="Company"
-            onClick={() => {
-              localStorage.setItem('userType', '1');
-              navigate('/company-login');
-            }}
-            className="submit-button"
-          />
-            <Button
-            label="Admin"
-            onClick={() => {
-              localStorage.setItem('userType', '2');
-              navigate('/admin-login-page');
-            }}
-            className="submit-button"
-          />
-        </div>
+    <div className="admin-login-container">
+      <div className="admin-login-form">
+        <h2 className="admin-login-header">Who Are You?</h2>
+
+        <Button
+          label="Student"
+          onClick={() => handleClick('0', '/login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Company"
+          onClick={() => handleClick('1', '/company-login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Admin"
+          onClick={() => handleClick('2', '/admin-login-page')}
+          className="admin-login-button"
+        />
       </div>
     </div>
   );
