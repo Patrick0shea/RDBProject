@@ -192,3 +192,84 @@ h2 {
     color: #1F2937;
     box-sizing: border-box;
 }
+
+
+/* extra */
+
+
+/* Page‐level container */
+
+.admin-login-container {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background: #002D40;
+    padding: 2rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+
+/* Form box */
+
+.admin-login-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    border-radius: 12px;
+    background: #F0FDF4;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Heading inside form */
+
+.admin-login-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 2rem;
+    color: #0F5132;
+}
+
+
+/* Labels for inputs */
+
+.admin-login-label {
+    display: block;
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+    color: #1F2937;
+}
+
+
+/* Text inputs, password inputs, selects… */
+
+.admin-login-input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #A3E635;
+    box-sizing: border-box;
+    background: #FFFFFF;
+    color: #1F2937;
+}
+
+
+/* Submit or action buttons */
+
+.admin-login-button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background: #22C55E;
+    color: #FFFFFF;
+    cursor: pointer;
+    margin-top: 1.5rem;
+}

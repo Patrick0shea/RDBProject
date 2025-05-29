@@ -8,9 +8,11 @@ interface ButtonProps {
   className?: string;
 }
 
-export function Button({ label, onClick, style }: ButtonProps) {
+export function Button({ label, onClick, style, className }: ButtonProps) {
   return (
-    <button onClick={onClick} style={style}>
+    <button onClick={onClick}
+    className={className}
+    style={style}>
       {label}
     </button>
 );

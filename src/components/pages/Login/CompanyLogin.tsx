@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { EmailField } from "./EmailField"; // Make sure EmailField supports className and onChange
-import { PasswordField } from "./PasswordField"; // Make sure PasswordField supports className and onChange
+import { EmailField } from "../../forms/EmailField"; // Make sure EmailField supports className and onChange
+import { PasswordField } from "../../forms/PasswordField"; // Make sure PasswordField supports className and onChange
 import { useNavigate } from "react-router-dom";
 
 export function CompanyLogin() {
@@ -60,6 +60,7 @@ export function CompanyLogin() {
     try {
       const res1 = await fetch("http://localhost:8000/register", {
         method: "POST",
+        credentials: 'include',
         body: formData,
       });
 
@@ -84,6 +85,7 @@ export function CompanyLogin() {
       // Second Request: Post job info
       const jobResponse = await fetch("http://localhost:8000/create-residency", {
         method: "POST",
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
         },
