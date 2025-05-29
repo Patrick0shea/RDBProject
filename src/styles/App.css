@@ -273,3 +273,26 @@ h2 {
     cursor: pointer;
     margin-top: 1.5rem;
 }
+
+/* Cards to seperate tables in a page*/
+.card {
+  background-color: #ffffff; /* white */
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Search bar styling*/
+.search-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin: 0.5rem 0 1rem 0;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #A3E635;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  color: #1F2937;
+}
