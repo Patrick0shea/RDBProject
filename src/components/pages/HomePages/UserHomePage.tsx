@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import RankingBlock from '../../shared/RankingBlock';
 import type { User } from '../../../types/user';
-import '../../styles/App.css';
+import '../../../styles/App.css';
 
 const UserHomePage = () => {
   const [availableStudents, setAvailableStudents] = useState<User[]>([]);
