@@ -7,7 +7,7 @@ interface confirmPasswordProps {
   className?: string;
 }
 
-export function confirmPasswordProps({ value, onChange, style }: confirmPasswordProps) {
+export function ConfirmPassword({ value, onChange, style }: confirmPasswordProps) {
   return (
     <input
       type="text"

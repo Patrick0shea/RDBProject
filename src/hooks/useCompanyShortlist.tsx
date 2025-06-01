@@ -31,17 +31,17 @@ export const useCompanyShortlist = (initial: Company[]) => {
   };
 
   const handleRemove = (id: number) => {
-    try {
-      const removed = shortlist.find((c) => c.id === id);
-      if (removed) {
-        setShortlist((prev) => prev.filter((c) => c.id !== id));
-        setAvailable((prev) => [...prev, removed]);
-      }
-    } catch (err) {
-      console.error("Error removing item from shortlist:", err);
-      setError("An error occurred while removing the item.");
+  try {
+    const removed = shortlist.find((c) => c.id === id);
+    if (removed) {
+      setShortlist((prev) => prev.filter((c) => c.id !== id));
+      setAvailable((prev) => [...prev, removed]);
     }
-  };
+  } catch (err) {
+    console.error("Error removing item from shortlist:", err);
+    setError("An error occurred while removing the item.");
+  }
+};
 
   const handleSort = (dragIndex: number, hoverIndex: number) => {
     try {
