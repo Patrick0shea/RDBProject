@@ -8,6 +8,7 @@ type LoginFormProps = {
   onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
   onSubmit: (e: React.FormEvent) => void;
+  error?: string; // Optional error message
 };
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -18,6 +19,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onEmailChange,
   onPasswordChange,
   onSubmit,
+  error,
 }) => {
   return (
     <div
@@ -36,6 +38,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         style={{ width: '90%', maxWidth: '500px', padding: '2.5rem' }}
       >
         <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>{title}</h1>
+
+        {error && (
+          <div
+            style={{
+              color: 'red',
+              backgroundColor: '#ffe5e5',
+              border: '1px solid red',
+              padding: '10px',
+              borderRadius: '4px',
+              marginBottom: '1rem',
+              textAlign: 'center',
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           Email

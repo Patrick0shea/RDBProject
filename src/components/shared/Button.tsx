@@ -1,4 +1,3 @@
-// src/components/Button.tsx
 import React from 'react';
 
 interface ButtonProps {
@@ -6,23 +5,15 @@ interface ButtonProps {
   onClick: () => void;
   style?: React.CSSProperties;
   className?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export function Button({ label, onClick, style, className }: ButtonProps) {
-
-  const handleClick = () => {
-    try {
-      onClick();
-    } catch (err: any) {
-      console.error('Error in Button onClick, check the button.tsx file:', err);
-      alert('Something went wrong. Please try again.');
-    }
-  };
   return (
-    <button
-    onClick={handleClick}
+    <button onClick={onClick}
     className={className}
-    style={style}>{label}
+    style={style}>
+      {label}
     </button>
-);
-}
+  );
+};

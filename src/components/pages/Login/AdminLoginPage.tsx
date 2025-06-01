@@ -24,12 +24,13 @@ const AdminLoginPage: React.FC = () => {
       });
 
       const data = await response.json();
+
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
       localStorage.setItem('user_type', '2');
       navigate('/admin-dashboard');
     } catch (error: any) {
-      setErrorMsg(error.message);
+      alert(error.message);
     }
   };
 
@@ -72,7 +73,7 @@ const AdminLoginPage: React.FC = () => {
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           Password
-          <input
+        <input
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -82,25 +83,15 @@ const AdminLoginPage: React.FC = () => {
           />
         </label>
 
-        <label style={{ display: 'block', marginBottom: '1rem' }}>
-          Admin I.D.
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            className="admin-login-input"
-            placeholder="Enter your I.D."
-          />
-        </label>
+<button 
+type='button'
+style={styles.button} 
+onClick={() => {
+            navigate('/admin-dashboard3');
+          }}>
+  Login
+</button>
 
-        <button
-          type="submit"
-          className="admin-login-button"
-          style={{ width: '100%', marginTop: '1.5rem' }}
-        >
-          Login
-        </button>
       </form>
     </div>
   );
