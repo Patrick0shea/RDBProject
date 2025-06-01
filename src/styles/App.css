@@ -186,7 +186,7 @@ h2 {
 .input-field {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #D1FAE5;
+    border: "1px solid #A3E635";
     border-radius: 4px;
     background: #F0FDF4;
     color: #1F2937;
@@ -215,11 +215,12 @@ h2 {
 /* Form box */
 
 .admin-login-form {
-    width: 100%;
+    padding: 1.5rem;
+    max-height: 350px;
+    overflow-y: auto;
     max-width: 400px;
-    padding: 2.5rem;
-    border-radius: 12px;
     background: #F0FDF4;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 

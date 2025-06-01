@@ -121,7 +121,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-container" style={{ display: 'flex', gap: '2rem' }}>
+    <div className="admin-login--container" style={{ display: 'flex', gap: '2rem' }}>
       <div className="ranking-block scrollable" style={{ flex: 1, minWidth: '320px' }}>
         <h2 className="ranking-title">Student QCA Overview</h2>
         {students.map((student) => {

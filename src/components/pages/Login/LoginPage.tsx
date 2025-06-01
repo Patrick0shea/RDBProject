@@ -15,18 +15,27 @@ const LoginPage: React.FC = () => {
   const [studentId, setStudentId]     = useState('');
   const [companyName, setCompanyName] = useState('');
   const navigate                       = useNavigate();
+  const [errorMsg, setErrorMsg]             = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setCv(e.target.files[0]);
+    try {
+      if (e.target.files?.[0]) setCv(e.target.files[0]);
+    } catch (err: any) {
+      console.error('File selection error:', err);
+      setErrorMsg('Couldn’t select your CV. Please try again.');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    // stops the browser from reloading the page
     e.preventDefault();
+    // clears any old errors, so we start fresh.
+    setErrorMsg(null);
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return;
-    }
+    
+      if (password !== confirmPassword) {
+        throw new Error('Passwords do not match.');
+      }
 
     const formData = new FormData();
     formData.append('first_name', firstName);
@@ -60,8 +69,14 @@ const LoginPage: React.FC = () => {
           throw new Error((data as any).message || 'Server error occurred');
         }
 
-        navigate('/user-dashboard');
+        try {
+          navigate('/user-dashboard');
+        } catch (navErr: any) {
+          console.error('Navigation error:', navErr);
+          throw new Error('Registration succeeded but navigation failed.');
+        }
       })
+      
       .catch((err) => {
         console.error('Error during fetch:', err);
         alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
@@ -71,7 +86,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div
-      className="dashboard-container"
+      className="admin-login-container"
       style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}
     >
       <form
@@ -81,19 +96,6 @@ const LoginPage: React.FC = () => {
       >
         <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Student Account</h1>
 
-        <label style={{ display: 'block', marginBottom: '1rem' }}>
-          Select Role
-          <select
-            value={role}
-            onChange={e => setRole(e.target.value as any)}
-            className="input-field"
-            required
-          >
-            <option value="user">User</option>
-            <option value="company">Company</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           First Name
@@ -102,7 +104,7 @@ const LoginPage: React.FC = () => {
             value={firstName}
             onChange={e => setFirstName(e.target.value)}
             placeholder="First Name"
-            className="input-field"
+            className="admin-login-input"
             required
           />
         </label>
@@ -114,7 +116,7 @@ const LoginPage: React.FC = () => {
             value={lastName}
             onChange={e => setLastName(e.target.value)}
             placeholder="Last Name"
-            className="input-field"
+            className="admin-login-input"
             required
           />
         </label>
@@ -126,7 +128,7 @@ const LoginPage: React.FC = () => {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="input-field"
+            className="admin-login-input"
             required
           />
         </label>
@@ -138,7 +140,7 @@ const LoginPage: React.FC = () => {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="input-field"
+            className="admin-login-input"
             required
           />
         </label>
@@ -150,7 +152,7 @@ const LoginPage: React.FC = () => {
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             placeholder="Re-enter your password"
-            className="input-field"
+            className="admin-login-input"
             required
           />
         </label>
@@ -162,7 +164,7 @@ const LoginPage: React.FC = () => {
             value={linkedin}
             onChange={e => setLinkedin(e.target.value)}
             placeholder="https://linkedin.com/in/you"
-            className="input-field"
+            className="admin-login-input"
           />
         </label>
 
@@ -173,7 +175,7 @@ const LoginPage: React.FC = () => {
             value={github}
             onChange={e => setGithub(e.target.value)}
             placeholder="https://github.com/you"
-            className="input-field"
+            className="admin-login-input"
           />
         </label>
 
@@ -184,7 +186,7 @@ const LoginPage: React.FC = () => {
             value={address}
             onChange={e => setAddress(e.target.value)}
             placeholder="Eircode"
-            className="input-field"
+            className="admin-login-input"
           />
         </label>
 
@@ -196,7 +198,7 @@ const LoginPage: React.FC = () => {
               value={studentId}
               onChange={e => setStudentId(e.target.value)}
               placeholder="Enter your student ID"
-              className="input-field"
+              className="admin-login-input"
               required
             />
           </label>
@@ -210,7 +212,7 @@ const LoginPage: React.FC = () => {
               value={companyName}
               onChange={e => setCompanyName(e.target.value)}
               placeholder="Enter your company name"
-              className="input-field"
+              className="admin-login-input"
               required
             />
           </label>
@@ -222,13 +224,13 @@ const LoginPage: React.FC = () => {
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={handleFileChange}
-            className="input-field"
+            className="admin-login-input"
           />
         </label>
 
         <button
           type="submit"
-          className="submit-button"
+          className="admin-login-button"
           style={{ width: '100%', marginTop: '1.5rem' }}
         >
           Submit

@@ -1,49 +1,37 @@
 import React, { useState } from "react";
-import { EmailField } from "../../forms/EmailField"; // Make sure EmailField supports className and onChange
-import { PasswordField } from "../../forms/PasswordField"; // Make sure PasswordField supports className and onChange
+import { EmailField } from "../../forms/EmailField";
+import { PasswordField } from "../../forms/PasswordField";
 import { useNavigate } from "react-router-dom";
 
+
 export function CompanyLogin() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [firstName, setFirstName]       = useState("");
+  const [lastName, setLastName]         = useState("");
+  const [email, setEmail]               = useState("");
+  const [password, setPassword]         = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [github, setGithub] = useState("");
-  const [address, setAddress] = useState("");
-  const [cv, setCv] = useState<File | null>(null);
-  const [companyName, setCompanyName] = useState("");
-
-  // NEW STATES
+  const [linkedin, setLinkedin]         = useState("");
+  const [address, setAddress]           = useState("");
+  const [companyName, setCompanyName]   = useState("");
   const [numberOfJobs, setNumberOfJobs] = useState<number | "">("");
-  const [salary, setSalary] = useState("");
+  const [salary, setSalary]             = useState("");
   const [jobDescription, setJobDescription] = useState("");
-
   const navigate = useNavigate();
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCv(e.target.files[0]);
-    }
-  };
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
 
     if (!firstName.trim() || !lastName.trim()) {
       alert("First Name and Last Name are required.");
       return;
     }
-
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return;
+      throw new Error("Passwords do not match.");
     }
 
     const userType = 1; // company user type
-
-    // First Request: Register user
     const formData = new FormData();
     formData.append("first_name", firstName);
     formData.append("last_name", lastName);
@@ -51,19 +39,16 @@ export function CompanyLogin() {
     formData.append("password", password);
     formData.append("password_confirmation", confirmPassword);
     formData.append("linkedin", linkedin);
-    formData.append("github", github);
     formData.append("address", address);
     formData.append("user_type", String(userType));
     formData.append("company_name", companyName);
-    if (cv) formData.append("cv", cv);
 
     try {
       const res1 = await fetch("http://localhost:8000/register", {
         method: "POST",
-        credentials: 'include',
+        credentials: "include",
         body: formData,
       });
-
       const text1 = await res1.text();
       let userData: any = {};
       try {
@@ -71,24 +56,18 @@ export function CompanyLogin() {
       } catch {
         console.warn("First response is not JSON:", text1);
       }
-
       if (!res1.ok) {
         throw new Error(userData.message || "Registration failed");
       }
-
-      // Extract company_id from the registration response
       const companyId = userData.company_id;
       if (!companyId) {
         throw new Error("Company ID not found in registration response");
       }
 
-      // Second Request: Post job info
       const jobResponse = await fetch("http://localhost:8000/create-residency", {
         method: "POST",
-        credentials: 'include',
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           company_id: companyId,
           count: numberOfJobs === "" ? 0 : Number(numberOfJobs),
@@ -96,7 +75,6 @@ export function CompanyLogin() {
           description: jobDescription,
         }),
       });
-
       const jobText = await jobResponse.text();
       let jobData: any = {};
       try {
@@ -104,15 +82,12 @@ export function CompanyLogin() {
       } catch {
         console.warn("Second response is not JSON:", jobText);
       }
-
       if (!jobResponse.ok) {
         throw new Error(jobData.message || "Job post failed");
       }
 
-      // Save user type and redirect
-      localStorage.setItem("user_type", String(userType));
+      localStorage.setItem("user_type", "1");
       navigate("/company-dashboard");
-
     } catch (err: any) {
       alert(`Something went wrong!\n${err?.message || "Unknown error"}`);
     }
@@ -120,24 +95,28 @@ export function CompanyLogin() {
 
   return (
     <div
-      className="dashboard-container"
-      style={{ height: "100vh", justifyContent: "center", alignItems: "center" }}
+      className="admin-login-container"
+      style={{
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+      }}
     >
       <form
         onSubmit={handleSubmit}
-        style={{
-          maxWidth: 600,
-          width: "100%",
-          padding: "2rem",
-          background: "#F0FDF4",
-          borderRadius: 12,
-        }}
+        className="company-list"
+        style={{ maxWidth: "500px", padding: "2.5rem" }}
       >
-        <h1 style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+        <h1 style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           Create Company Account
         </h1>
 
-        {/* Existing fields here... */}
+        {errorMsg && (
+          <div style={{ color: "red", marginBottom: "1rem" }}>
+            {errorMsg}
+          </div>
+        )}
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
           Number of Jobs *
@@ -145,16 +124,12 @@ export function CompanyLogin() {
             type="number"
             min={0}
             value={numberOfJobs}
-            onChange={(e) => setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value))}
+            onChange={(e) =>
+              setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value))
+            }
             required
             placeholder="Number of available jobs"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -166,13 +141,7 @@ export function CompanyLogin() {
             onChange={(e) => setSalary(e.target.value)}
             required
             placeholder="Salary offered"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -183,22 +152,10 @@ export function CompanyLogin() {
             onChange={(e) => setJobDescription(e.target.value)}
             required
             placeholder="Describe the job role"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-              minHeight: 100,
-              resize: "vertical",
-            }}
+            className="admin-login-input"
+            style={{ minHeight: "100px", resize: "vertical" }}
           />
         </label>
-
-        {/* Rest of your fields below */}
-        {/* First Name, Last Name, Company Name, LinkedIn, GitHub, Address, Email, Password, Confirm Password, Upload CV */}
-
-        {/* You can reorder if needed */}
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
           First Name *
@@ -208,13 +165,7 @@ export function CompanyLogin() {
             onChange={(e) => setFirstName(e.target.value)}
             required
             placeholder="First Name"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -226,13 +177,7 @@ export function CompanyLogin() {
             onChange={(e) => setLastName(e.target.value)}
             required
             placeholder="Last Name"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -244,13 +189,7 @@ export function CompanyLogin() {
             onChange={(e) => setCompanyName(e.target.value)}
             required
             placeholder="Enter your company name"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -261,30 +200,7 @@ export function CompanyLogin() {
             value={linkedin}
             onChange={(e) => setLinkedin(e.target.value)}
             placeholder="https://www.linkedin.com/in/yourprofile"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
-          />
-        </label>
-
-        <label style={{ display: "block", marginBottom: "1rem" }}>
-          GitHub
-          <input
-            type="url"
-            value={github}
-            onChange={(e) => setGithub(e.target.value)}
-            placeholder="https://github.com/yourusername"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -295,13 +211,7 @@ export function CompanyLogin() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Eircode"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -310,14 +220,7 @@ export function CompanyLogin() {
           <EmailField
             value={email}
             onChange={setEmail}
-            className="input-field"
-            required
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -326,14 +229,7 @@ export function CompanyLogin() {
           <PasswordField
             value={password}
             onChange={setPassword}
-            className="input-field"
-            required
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
@@ -345,46 +241,14 @@ export function CompanyLogin() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             placeholder="Re-enter your password"
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
-          />
-        </label>
-
-        <label style={{ display: "block", marginBottom: "1rem" }}>
-          Upload CV
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={handleFileChange}
-            className="input-field"
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              borderRadius: 6,
-              border: "1px solid #A3E635",
-            }}
+            className="admin-login-input"
           />
         </label>
 
         <button
           type="submit"
-          className="submit-button"
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            fontSize: "1rem",
-            borderRadius: 6,
-            border: "none",
-            background: "#22C55E",
-            color: "#FFFFFF",
-            cursor: "pointer",
-            marginTop: "1.5rem",
-          }}
+          className="admin-login-button"
+          style={{ width: "100%", marginTop: "1.5rem" }}
         >
           Submit
         </button>

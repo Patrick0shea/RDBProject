@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+//import '../../styles/App.css';
 
 const AccLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,13 +16,10 @@ const AccLoginPage: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
-        credentials: 'include', // Required to send cookies
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -31,7 +29,6 @@ const AccLoginPage: React.FC = () => {
       const data = await response.json();
       console.log('Login successful:', data);
 
-      // Navigate based on role
       navigate(
         role === 'user'
           ? '/user-dashboard'
@@ -46,31 +43,20 @@ const AccLoginPage: React.FC = () => {
   };
 
   return (
-    <div
-      className="dashboard-container"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh'
-      }}
-    >
+    <div className="admin-login-container">
       <form
         onSubmit={handleSubmit}
         className="company-list"
         style={{ width: '90%', maxWidth: '500px', padding: '2.5rem' }}
       >
-        <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          Login Page
-        </h1>
+        <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Login Page</h1>
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           Select Role
           <select
             value={role}
             onChange={e => setRole(e.target.value as any)}
-            className="input-field"
+            className="admin-login-input"
             required
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
@@ -87,7 +73,7 @@ const AccLoginPage: React.FC = () => {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="input-field"
+            className="admin-login-input"
             required
             style={{ width: '100%', marginTop: '0.5rem' }}
           />
@@ -100,7 +86,7 @@ const AccLoginPage: React.FC = () => {
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="input-field"
+            className="admin-login-input"
             required
             style={{ width: '100%', marginTop: '0.5rem' }}
           />
@@ -108,7 +94,7 @@ const AccLoginPage: React.FC = () => {
 
         <button
           type="submit"
-          className="submit-button"
+          className="admin-login-button"
           style={{ width: '100%', marginTop: '1.5rem' }}
         >
           Submit

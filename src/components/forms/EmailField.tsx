@@ -8,14 +8,24 @@ interface EmailFieldProps {
   className?: string;
 }
 
-export function EmailField({ value, onChange, style }: EmailFieldProps) {
+export function EmailField({ value, onChange, style, className }: EmailFieldProps) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      onChange(e.target.value);
+    } catch (err: any) {
+      console.error('Error in EmailField onChange, check EmailField.tsx:', err);
+      alert('There was a problem updating the email. Please try again.');
+    }
+  };
+
   return (
     <input
       type="email"
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={handleChange}
       placeholder="name@email.com"
       style={style}
+      className={className}
     />
   );
 }
