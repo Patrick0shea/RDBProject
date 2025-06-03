@@ -17,7 +17,7 @@ const Navbar3 = () => {
 
       if (response.ok) {
         alert('Logged out successfully');
-        navigate('/login');
+        navigate('/landing-page');
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Logout failed:', errorData);
