@@ -1,22 +1,22 @@
-import React from 'react';
+import React from 'react'; /* dont need use state as we are not updating state */
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../shared/Button';
-import '../../styles/App.css';
+//import '../../styles/App.css';
 
 
 /*valid URL's the program can go to
 as const makes the array read only */
-const VALID_PATHS = ['/login','/company-login','/admin-login-page'] as const;
+const VALID_PATHS = ['/login','/company-login','/admin-login-page', '/acc-login-page'] as const;
 
 const LandingPageTest: React.FC = () => {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  const handleClick = (type: '0' | '1' | '2', path: string) => {
+  const handleClick = (type: '0' | '1' | '2' | '3', path: string) => {
     /* check if the path is valid */
     if (!VALID_PATHS.includes(path as any)) {
       console.error(`Invalid path: ${path}`);
-      setErrorMsg('Oops—unknown route. Please contact support.');
+      setErrorMsg('Unknown route. Please contact support.');
       return;
     }
 
@@ -34,7 +34,7 @@ const LandingPageTest: React.FC = () => {
       navigate(path);
     } catch (e: any) {
       console.error('Navigation error:', e);
-      setErrorMsg('Couldn’t move forward—please refresh and try again.');
+      setErrorMsg('Could not move forward—please refresh and try again.');
     }
   };
 
@@ -47,14 +47,35 @@ const LandingPageTest: React.FC = () => {
           <button onClick={() => setErrorMsg(null)}>×</button>
         </div>
       )}
-      <div className="admin-login-form">
+      <div
+        className="admin-login-form"
+        style={{ maxWidth: '500px', padding: '4rem', maxHeight: '550px' }}
+      >
         <h2 className="admin-login-header">Who Are You?</h2>
-        <Button label="Student" onClick={() => handleClick('0','/login')} className="admin-login-button" />
-        <Button label="Company" onClick={() => handleClick('1','/company-login')} className="admin-login-button" />
-        <Button label="Admin"   onClick={() => handleClick('2','/admin-login-page')} className="admin-login-button" />
+
+        <Button
+          label="Just Signing In"
+          onClick={() => handleClick('3', '/acc-login-page')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Student"
+          onClick={() => handleClick('0', '/login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Company"
+          onClick={() => handleClick('1', '/company-login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Admin"
+          onClick={() => handleClick('2', '/admin-login-page')}
+          className="admin-login-button"
+        />
       </div>
     </div>
   );
-};
+}
 
 export default LandingPageTest;
