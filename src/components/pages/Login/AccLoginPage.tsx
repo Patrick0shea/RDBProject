@@ -29,13 +29,18 @@ const AccLoginPage: React.FC = () => {
       const data = await response.json();
       console.log('Login successful:', data);
 
-      navigate(
-        role === 'user'
-          ? '/user-dashboard'
-          : role === 'company'
-          ? '/company-dashboard'
-          : '/admin-dashboard'
-      );
+      try {
+        if (role === 'user') {
+          navigate('/user-dashboard');
+        } else if (role === 'company') {
+          navigate('/company-dashboard');
+        } else {
+          navigate('/admin-dashboard');
+        }
+      } catch (navErr: any) {
+        console.error('Navigation error:', navErr);
+        alert('Login succeeded but redirect failed. Please refresh the page.');
+      }
     } catch (error) {
       console.error('Login error:', error);
       alert('Login failed. Please check your credentials.');
@@ -60,7 +65,7 @@ const AccLoginPage: React.FC = () => {
             required
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
-            <option value="user">User</option>
+            <option value="user">Student</option>
             <option value="company">Company</option>
             <option value="admin">Admin</option>
           </select>
@@ -99,6 +104,7 @@ const AccLoginPage: React.FC = () => {
         >
           Submit
         </button>
+
       </form>
     </div>
   );
