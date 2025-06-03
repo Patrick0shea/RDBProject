@@ -65,7 +65,7 @@ const AccLoginPage: React.FC = () => {
             required
             style={{ width: '100%', marginTop: '0.5rem' }}
           >
-            <option value="user">User</option>
+            <option value="user">Student</option>
             <option value="company">Company</option>
             <option value="admin">Admin</option>
           </select>
