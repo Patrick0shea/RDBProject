@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; /* Imports react and the helper which lets a function rememebr and update values */
 import { EmailField } from "../../forms/EmailField";
 import { PasswordField } from "../../forms/PasswordField";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; /* Allows redirection after login*/
 
 
 export function CompanyLogin() {
@@ -13,27 +13,36 @@ export function CompanyLogin() {
   const [linkedin, setLinkedin]         = useState("");
   const [address, setAddress]           = useState("");
   const [companyName, setCompanyName]   = useState("");
-  const [numberOfJobs, setNumberOfJobs] = useState<number | "">("");
+  const [numberOfJobs, setNumberOfJobs] = useState<number | "">(""); /* Can hold a empty string or a number*/
   const [salary, setSalary]             = useState("");
   const [jobDescription, setJobDescription] = useState("");
-  const navigate = useNavigate();
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const navigate = useNavigate(); /* Calls the useNavigate hook, which returns a navigate function*/
+  const [errorMsg, setErrorMsg] = useState<string | null>(null); /* It’s null when there is no error, or a string to display an error banner*/
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg(null);
+  
+  const handleSubmit = async (e: React.FormEvent) => { /* called when the form is submitted*/
+    e.preventDefault(); /* Prevents a full page reload, instead handles in in JSX*/
+    setErrorMsg(null); /* Clears any previous error message*/
 
+
+    /*(client-side validation) checks that both firstName and lastName are non‐empty */
     if (!firstName.trim() || !lastName.trim()) {
       alert("First Name and Last Name are required.");
       return;
     }
     if (password !== confirmPassword) {
+<<<<<<< HEAD
       alert("Passwords do not match.");
+=======
+      setErrorMsg('Passwords do not match.');
+>>>>>>> eaf0c0bffdd8275a3b7ee428bb52e89082859db3
       return;
     }
 
-    const userType = 1; // company user type
+    const userType = 1; /* company user type*/
+    /* Make a new, empty container(object) to collect form values before sending */
     const formData = new FormData();
+    /* adds the form data to the form data object */
     formData.append("first_name", firstName);
     formData.append("last_name", lastName);
     formData.append("email", email);
@@ -43,6 +52,9 @@ export function CompanyLogin() {
     formData.append("address", address);
     formData.append("user_type", String(userType));
     formData.append("company_name", companyName);
+
+
+    /* must ask aaron */
 
     try {
       const res1 = await fetch("http://localhost:8000/register", {
@@ -87,10 +99,24 @@ export function CompanyLogin() {
         throw new Error(jobData.message || "Job post failed");
       }
 
-      localStorage.setItem("user_type", "1");
-      navigate("/company-dashboard");
+      try {
+        localStorage.setItem("user_type", "1");
+      } catch (storageErr: any) {
+        console.error("localStorage error:", storageErr);
+        setErrorMsg("Could not save login state—storage is disabled or full.");
+        return;
+      }
+
+      try {
+        navigate("/company-dashboard");
+      } catch (navErr: any) {
+        console.error("Navigation error:", navErr);
+        setErrorMsg("Registration succeeded but redirect failed. Please refresh.");
+      }
+
     } catch (err: any) {
-      alert(`Something went wrong!\n${err?.message || "Unknown error"}`);
+      console.error("Error during registration flow:", err);
+      setErrorMsg(err?.message || "Something went wrong—please try again.");
     }
   };
 
@@ -113,7 +139,7 @@ export function CompanyLogin() {
           Create Company Account
         </h1>
 
-        {errorMsg && (
+        {errorMsg && ( /* If error message is not null render this  */
           <div style={{ color: "red", marginBottom: "1rem" }}>
             {errorMsg}
           </div>
@@ -126,7 +152,7 @@ export function CompanyLogin() {
             min={0}
             value={numberOfJobs}
             onChange={(e) =>
-              setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value))
+              setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value)) /* Takes input and updates it to be either a empty or numeric value*/
             }
             required
             placeholder="Number of available jobs"
@@ -139,7 +165,8 @@ export function CompanyLogin() {
           <input
             type="text"
             value={salary}
-            onChange={(e) => setSalary(e.target.value)}
+            /* Every time the user types or edits the field, React calls this function with the change event e */
+            onChange={(e) => setSalary(e.target.value)} /* e.target.value is the string the user has typed so far, passing it to setSalary updates the salary state*/
             required
             placeholder="Salary offered"
             className="admin-login-input"
