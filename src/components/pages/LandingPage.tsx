@@ -6,13 +6,13 @@ import { Button } from '../shared/Button';
 
 /*valid URL's the program can go to
 as const makes the array read only */
-const VALID_PATHS = ['/login','/company-login','/admin-login-page'] as const;
+const VALID_PATHS = ['/login','/company-login','/admin-login-page', '/acc-login-page'] as const;
 
 const LandingPageTest: React.FC = () => {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  const handleClick = (type: '0' | '1' | '2', path: string) => {
+  const handleClick = (type: '0' | '1' | '2' | '3', path: string) => {
     /* check if the path is valid */
     if (!VALID_PATHS.includes(path as any)) {
       console.error(`Invalid path: ${path}`);
@@ -47,14 +47,35 @@ const LandingPageTest: React.FC = () => {
           <button onClick={() => setErrorMsg(null)}>×</button>
         </div>
       )}
-      <div className="admin-login-form">
+      <div
+        className="admin-login-form"
+        style={{ maxWidth: '500px', padding: '4rem', maxHeight: '550px' }}
+      >
         <h2 className="admin-login-header">Who Are You?</h2>
-        <Button label="Student" onClick={() => handleClick('0','/login')} className="admin-login-button" />
-        <Button label="Company" onClick={() => handleClick('1','/company-login')} className="admin-login-button" />
-        <Button label="Admin"   onClick={() => handleClick('2','/admin-login-page')} className="admin-login-button" />
+
+        <Button
+          label="Just Signing In"
+          onClick={() => handleClick('3', '/acc-login-page')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Student"
+          onClick={() => handleClick('0', '/login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Company"
+          onClick={() => handleClick('1', '/company-login')}
+          className="admin-login-button"
+        />
+        <Button
+          label="Admin"
+          onClick={() => handleClick('2', '/admin-login-page')}
+          className="admin-login-button"
+        />
       </div>
     </div>
   );
-};
+}
 
 export default LandingPageTest;
