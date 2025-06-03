@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'; /* dont need use state as we are not updating state */
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../shared/Button';
-import '../../styles/App.css';
+//import '../../styles/App.css';
 
 
 /*valid URL's the program can go to
@@ -16,7 +16,7 @@ const LandingPageTest: React.FC = () => {
     /* check if the path is valid */
     if (!VALID_PATHS.includes(path as any)) {
       console.error(`Invalid path: ${path}`);
-      setErrorMsg('Oops—unknown route. Please contact support.');
+      setErrorMsg('Unknown route. Please contact support.');
       return;
     }
 
@@ -34,7 +34,7 @@ const LandingPageTest: React.FC = () => {
       navigate(path);
     } catch (e: any) {
       console.error('Navigation error:', e);
-      setErrorMsg('Couldn’t move forward—please refresh and try again.');
+      setErrorMsg('Could not move forward—please refresh and try again.');
     }
   };
 

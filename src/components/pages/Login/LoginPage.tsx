@@ -11,18 +11,21 @@ const LoginPage: React.FC = () => {
   const [github, setGithub]           = useState('');
   const [address, setAddress]         = useState('');
   const [cv, setCv]                   = useState<File | null>(null);
-  const [role, setRole]               = useState<'user'|'company'|'admin'>('user');
+  /*const [role, setRole]               = useState<'user'|'company'|'admin'>('user'); */
   const [studentId, setStudentId]     = useState('');
-  const [companyName, setCompanyName] = useState('');
+  /*const [companyName, setCompanyName] = useState('');*/
   const navigate                       = useNavigate();
   const [errorMsg, setErrorMsg]             = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      if (e.target.files?.[0]) setCv(e.target.files[0]);
+      if (e.target.files?.[0]) {
+        setCv(e.target.files[0]);
+        setErrorMsg(null);       // Clear previous errors when a file succeeds
+      }
     } catch (err: any) {
       console.error('File selection error:', err);
-      setErrorMsg('Couldn’t select your CV. Please try again.');
+      setErrorMsg('Could not select your CV. Please try again.');
     }
   };
 
@@ -34,7 +37,8 @@ const LoginPage: React.FC = () => {
 
     
       if (password !== confirmPassword) {
-        throw new Error('Passwords do not match.');
+        setErrorMsg('Passwords do not match.');
+        return;
       }
 
     const formData = new FormData();
@@ -95,6 +99,35 @@ const LoginPage: React.FC = () => {
         style={{ maxWidth: '500px', padding: '2.5rem' }}
       >
         <h1 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Student Account</h1>
+
+        {errorMsg && (
+        <div
+          style={{
+            backgroundColor: '#fdecea',
+            color: '#b71c1c',
+            padding: '0.75rem 1rem',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>{errorMsg}</span>
+          <button
+            onClick={() => setErrorMsg(null)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: '1.2rem',
+              lineHeight: '1',
+              cursor: 'pointer',
+            }}
+          >
+            x {/* so the user can close the error message */}
+          </button>
+        </div>
+      )}
 
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
@@ -190,7 +223,7 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        {role === 'user' && (
+        
           <label style={{ display: 'block', marginBottom: '1rem' }}>
             Student ID
             <input
@@ -202,21 +235,6 @@ const LoginPage: React.FC = () => {
               required
             />
           </label>
-        )}
-
-        {role === 'company' && (
-          <label style={{ display: 'block', marginBottom: '1rem' }}>
-            Company Name
-            <input
-              type="text"
-              value={companyName}
-              onChange={e => setCompanyName(e.target.value)}
-              placeholder="Enter your company name"
-              className="admin-login-input"
-              required
-            />
-          </label>
-        )}
 
         <label style={{ display: 'block', marginBottom: '1rem' }}>
           Upload CV
