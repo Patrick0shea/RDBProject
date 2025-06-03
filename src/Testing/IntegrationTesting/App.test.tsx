@@ -1,41 +1,40 @@
+// src/__tests__/App.test.tsx
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import '@testing-library/jest-dom';
 import App from '../../App';
+import { describe, it, expect } from 'vitest';
 
-describe('App Routing Integration', () => {
-  it('renders Landing Page by default', () => {
-    render(
-      <MemoryRouter initialEntries={['/landing-page']}>
-        <App />
-      </MemoryRouter>
-    );
-    expect(screen.getByText(/landing page/i)).toBeInTheDocument(); // Adjust based on actual heading or text
-  });
+describe('App integration test', () => {
+  it('renders the Navbar and default route (LandingPage)', () => {
+    render(<App />);
 
-  it('renders Login Page on /login', () => {
-    render(
-      <MemoryRouter initialEntries={['/login']}>
-        <App />
-      </MemoryRouter>
-    );
-    expect(screen.getByText(/login/i)).toBeInTheDocument(); // Update if there's a more specific marker
-  });
+    // Navbar should be present
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
 
-  it('renders Admin Dashboard on /admin-dashboard3', () => {
-    render(
-      <MemoryRouter initialEntries={['/admin-dashboard3']}>
-        <App />
-      </MemoryRouter>
-    );
-    expect(screen.getByText(/admin dashboard/i)).toBeInTheDocument(); // Update based on content
-  });
-
-  it('renders Landing Page on unknown route', () => {
-    render(
-      <MemoryRouter initialEntries={['/some/unknown/route']}>
-        <App />
-      </MemoryRouter>
-    );
+    // Adjust based on LandingPage content
     expect(screen.getByText(/landing page/i)).toBeInTheDocument();
+  });
+
+ it('renders LoginPage at /login route', () => {
+  window.history.pushState({}, '', '/login');
+  render(<App />);
+
+  // Use a more specific assertion:
+  expect(screen.getByRole('heading', { name: /create/i })).toBeInTheDocument();
+});
+  it('renders AdminDashboard at /admin-dashboard3', () => {
+    window.history.pushState({}, '', '/admin-dashboard3');
+    render(<App />);
+
+    expect(screen.getByText(/students/i)).toBeInTheDocument();
+    expect(screen.getByText(/companies/i)).toBeInTheDocument();
+    expect(screen.getByText(/feedback/i)).toBeInTheDocument();
+  });
+
+  it('renders fallback LandingPage for unknown route', () => {
+    window.history.pushState({}, '', '/this-does-not-exist');
+    render(<App />);
+
+    expect(screen.getByText(/landing page/i)).toBeInTheDocument(); // Adjust accordingly
   });
 });

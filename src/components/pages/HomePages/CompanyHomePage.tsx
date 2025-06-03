@@ -21,59 +21,37 @@ const CompanyHomePage = () => {
   const [dragged, setDragged] = useState<Company | null>(null);
 
   const handleDragStart = (company: Company) => {
-    try {
-      setDragged(company);
-    } catch (error) {
-      console.error("Failed to start drag:", error);
-    }
+    setDragged(company);
   };
 
   const handleDrop = () => {
-    try {
-      if (!dragged) return;
-      if (!shortlist.find(c => c.id === dragged.id)) {
-        setShortlist(prev => [...prev, dragged]);
-        setAvailableCompanies(prev => prev.filter(c => c.id !== dragged.id));
-      }
-    } catch (error) {
-      console.error("Error during drop:", error);
-    } finally {
-      setDragged(null);
+    if (!dragged) return;
+    if (!shortlist.find(c => c.id === dragged.id)) {
+      setShortlist(prev => [...prev, dragged]);
+      setAvailableCompanies(prev => prev.filter(c => c.id !== dragged.id));
     }
+    setDragged(null);
   };
 
   const handleRemove = (id: number) => {
-    try {
-      const removed = shortlist.find(c => c.id === id);
-      if (removed) {
-        setShortlist(prev => prev.filter(c => c.id !== id));
-        setAvailableCompanies(prev => [...prev, removed]);
-      }
-    } catch (error) {
-      console.error(`Error removing company with id ${id}:`, error);
+    const removed = shortlist.find(c => c.id === id);
+    if (removed) {
+      setShortlist(prev => prev.filter(c => c.id !== id));
+      setAvailableCompanies(prev => [...prev, removed]);
     }
   };
 
   const handleSort = (dragIndex: number, hoverIndex: number) => {
-    try {
-      const updated = [...shortlist];
-      const [moved] = updated.splice(dragIndex, 1);
-      updated.splice(hoverIndex, 0, moved);
-      setShortlist(updated);
-    } catch (error) {
-      console.error("Error during sorting:", error);
-    }
+    const updated = [...shortlist];
+    const [moved] = updated.splice(dragIndex, 1);
+    updated.splice(hoverIndex, 0, moved);
+    setShortlist(updated);
   };
 
   const handleSubmit = () => {
-    try {
-      const rankingArray = shortlist.map((company, index) => [company.title, index + 1]);
-      console.log("Ranking array:", rankingArray);
-      alert("Submitted! Check console for result.");
-    } catch (error) {
-      console.error("Submission failed:", error);
-      alert("Submission failed. Please try again.");
-    }
+    const rankingArray = shortlist.map((company, index) => [company.title, index + 1]);
+    console.log("Ranking array:", rankingArray);
+    alert("Submitted! Check console for result.");
   };
 
   return (
@@ -84,6 +62,7 @@ const CompanyHomePage = () => {
         {availableCompanies.map(company => (
           <div
             key={company.id}
+            data-testid="company-item"
             draggable
             onDragStart={() => handleDragStart(company)}
             className="draggable-block"
@@ -103,6 +82,7 @@ const CompanyHomePage = () => {
       {/* Right Column */}
       <div
         className="shortlist scrollable"
+        data-testid="shortlist-drop-zone"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -113,25 +93,15 @@ const CompanyHomePage = () => {
           <div
             key={company.id}
             draggable
-            onDragStart={() => {
-              try {
-                setDragged(company);
-              } catch (error) {
-                console.error("Error during shortlist dragStart:", error);
-              }
-            }}
+            onDragStart={() => setDragged(company)}
             onDragOver={(e) => {
-              try {
-                e.preventDefault();
-                if (dragged && company.id !== dragged.id) {
-                  const dragIndex = shortlist.findIndex(c => c.id === dragged.id);
-                  const hoverIndex = shortlist.findIndex(c => c.id === company.id);
-                  if (dragIndex !== -1 && hoverIndex !== -1) {
-                    handleSort(dragIndex, hoverIndex);
-                  }
+              e.preventDefault();
+              if (dragged && company.id !== dragged.id) {
+                const dragIndex = shortlist.findIndex(c => c.id === dragged.id);
+                const hoverIndex = shortlist.findIndex(c => c.id === company.id);
+                if (dragIndex !== -1 && hoverIndex !== -1) {
+                  handleSort(dragIndex, hoverIndex);
                 }
-              } catch (error) {
-                console.error("Error during dragOver in shortlist:", error);
               }
             }}
             className="shortlist-item"
@@ -145,7 +115,12 @@ const CompanyHomePage = () => {
               dropdownContent={
                 <>
                   <p>{company.title} in shortlist</p>
-                  <button onClick={() => handleRemove(company.id)}>Remove</button>
+                  <button
+                    onClick={() => handleRemove(company.id)}
+                    data-testid="remove-button"
+                  >
+                    Remove
+                  </button>
                 </>
               }
             />
@@ -153,7 +128,11 @@ const CompanyHomePage = () => {
         ))}
         {availableCompanies.length === 0 && (
           <div style={{ marginTop: '20px' }}>
-            <button onClick={handleSubmit} style={{ padding: '10px 20px', fontSize: '16px' }}>
+            <button
+              onClick={handleSubmit}
+              style={{ padding: '10px 20px', fontSize: '16px' }}
+              aria-label="Submit Rankings"
+            >
               Submit Rankings
             </button>
           </div>

@@ -3,7 +3,20 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import LandingPage from '../../components/pages/LandingPage';
+import '@testing-library/jest-dom';
 
+const mockNavigate = vi.fn(); // ✅ Must be defined at top level
+
+// ✅ Mock useNavigate BEFORE importing components that use it
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+// ✅ Optional: mock Button if needed
 vi.mock('../../shared/Button', () => ({
   Button: ({ label, onClick, className }: any) => (
     <button onClick={onClick} className={className}>{label}</button>
@@ -11,20 +24,11 @@ vi.mock('../../shared/Button', () => ({
 }));
 
 describe('LandingPageTest', () => {
-  const mockNavigate = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubGlobal('localStorage', {
       setItem: vi.fn(),
     } as any);
-    vi.mock('react-router-dom', async () => {
-      const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
-      return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-      };
-    });
   });
 
   it('renders all buttons', () => {

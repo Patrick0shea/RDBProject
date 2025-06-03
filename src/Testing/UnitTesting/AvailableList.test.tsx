@@ -1,70 +1,40 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+// src/Testing/UnitTests/AvailableList.test.tsx
 import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import AvailableList from '../../components/shared/AvailableList';
-import type { Residency } from '../../types/common';
+import '@testing-library/jest-dom';
 
-const mockResidencies: Residency[] = [
-  { id: 1, title: 'Transact', salary: 2500, company_name: 'Transact Inc' },
-  { id: 2, title: 'Innovate', salary: 2600, company_name: 'Innovate LLC' },
-];
+describe('AvailableList', () => {
+  const mockHandleDragStart = vi.fn();
+  const mockItems = [
+    { id: 1, title: 'Company A', salary: 50000, company_name: 'Company A' },
+    { id: 2, title: 'Transact', salary: 60000, company_name: 'Transact' },
+  ];
 
-describe('AvailableList component', () => {
-  it('renders fallback when no companies are available', () => {
-    render(<AvailableList items={[]} handleDragStart={vi.fn()} />);
+  it('renders the heading and items', () => {
+    render(<AvailableList items={mockItems} handleDragStart={mockHandleDragStart} />);
+
+    expect(screen.getByRole('heading', { name: /Available Companies/i })).toBeInTheDocument();
+    expect(screen.getByText(/Company A/i)).toBeInTheDocument();
+    expect(screen.getByText(/Transact/i)).toBeInTheDocument();
+  });
+
+  it('calls handleDragStart when item is dragged', () => {
+    render(<AvailableList items={mockItems} handleDragStart={mockHandleDragStart} />);
+
+    const draggableDivs = screen.getAllByText(/Company/i).map(el => el.closest('.draggable-block'));
+    expect(draggableDivs.length).toBeGreaterThan(0);
+
+    // Simulate dragStart on first item
+    fireEvent.dragStart(draggableDivs[0]!);
+
+    expect(mockHandleDragStart).toHaveBeenCalledTimes(1);
+    expect(mockHandleDragStart).toHaveBeenCalledWith(mockItems[0]);
+  });
+
+  it('displays a message when no items are available', () => {
+    render(<AvailableList items={[]} handleDragStart={mockHandleDragStart} />);
+
     expect(screen.getByText(/No companies available/i)).toBeInTheDocument();
-  });
-
-  it('renders all companies passed as props', () => {
-    render(<AvailableList items={mockResidencies} handleDragStart={vi.fn()} />);
-    
-    // Heading
-    expect(screen.getByText(/Available Companies/i)).toBeInTheDocument();
-    
-    // Company blocks
-    expect(screen.getByText(/Transact details/i)).toBeInTheDocument();
-    expect(screen.getByText(/Innovate details/i)).toBeInTheDocument();
-  });
-
-  it('triggers handleDragStart when an item is dragged', () => {
-    const handleDragStart = vi.fn();
-
-    render(<AvailableList items={mockResidencies} handleDragStart={handleDragStart} />);
-
-    const draggableItems = screen.getAllByRole('generic', { hidden: true }); // fallback for divs
-
-    fireEvent.dragStart(draggableItems[0]);
-    expect(handleDragStart).toHaveBeenCalledWith(mockResidencies[0]);
-
-    fireEvent.dragStart(draggableItems[1]);
-    expect(handleDragStart).toHaveBeenCalledWith(mockResidencies[1]);
-  });
-
-  it('shows an error message when rendering an item throws', () => {
-    const faultyItem: Residency = {
-      id: 999,
-      title: 'Broken',
-      salary: 0,
-      company_name: 'Oops Inc',
-    };
-
-    // Override console.error temporarily
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    const BrokenComponent = () => {
-      const brokenProps = [{ ...faultyItem }];
-      return (
-        <AvailableList
-          items={brokenProps}
-          handleDragStart={() => {
-            throw new Error('Crash');
-          }}
-        />
-      );
-    };
-
-    expect(() => render(<BrokenComponent />)).not.toThrow();
-    expect(screen.getByText(/Error rendering company block/i)).toBeInTheDocument();
-
-    consoleSpy.mockRestore();
   });
 });

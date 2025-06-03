@@ -1,170 +1,96 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { describe, it, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
 import UserHomePage from '../../components/pages/HomePages/UserHomePage';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+import '@testing-library/jest-dom';
 
-vi.mock('../../shared/RankingBlock', () => ({
-  default: ({ title, info1, info2, dropdownContent }: any) => (
-    <div>
-      <h3>{title}</h3>
-      <p>{info1}</p>
-      <p>{info2}</p>
-      {dropdownContent}
-    </div>
-  )
-}));
+vi.stubGlobal('fetch', vi.fn());
 
 const mockUsers = [
   {
     id: 1,
-    title: 'Software Engineer Intern',
-    salary: 3000,
-    company_name: 'OpenAI',
+    description: 'Frontend Developer',
+    salary: 2500,
+    company_name: 'Transact',
   },
   {
     id: 2,
-    title: 'Data Analyst Intern',
-    salary: 2800,
-    company_name: 'Google',
+    description: 'Backend Developer',
+    salary: 2700,
+    company_name: 'Stripe',
   },
 ];
 
 describe('UserHomePage', () => {
-  let fetchSpy: any;
-  let alertSpy: any;
-
   beforeEach(() => {
-    fetchSpy = vi.spyOn(global, 'fetch');
-    alertSpy = vi.stubGlobal('alert', vi.fn());
-
-    fetchSpy.mockImplementation((url: string) => {
-      if (url.includes('get-residencies')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockUsers),
-        });
-      }
-
-      if (url.includes('submit-rankings')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ success: true }),
-        });
-      }
-
-      return Promise.reject(new Error('Unhandled fetch'));
+    (fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUsers,
     });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('renders loading then displays fetched residencies', async () => {
+  it('renders users after fetch', async () => {
     render(<UserHomePage />);
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByText(/Software Engineer Intern/i)).toBeInTheDocument();
-      expect(screen.getByText(/Data Analyst Intern/i)).toBeInTheDocument();
-    });
-  });
-
-  it('drags a user into the shortlist', async () => {
-    render(<UserHomePage />);
-    await waitFor(() => screen.getByText(/Software Engineer Intern/i));
-
-    const draggableItem = screen.getByText(/Software Engineer Intern/i).closest('div')!;
-    const dropZone = screen.getByText(/Shortlist/i).closest('div')!;
-
-    fireEvent.dragStart(draggableItem);
-    fireEvent.dragOver(dropZone);
-    fireEvent.drop(dropZone);
-
-    await waitFor(() => {
-      expect(screen.getAllByText(/Software Engineer Intern/i).length).toBeGreaterThan(1);
-    });
-  });
-
-  it('removes a user from the shortlist', async () => {
-    render(<UserHomePage />);
-    await waitFor(() => screen.getByText(/Software Engineer Intern/i));
-
-    const dragItem = screen.getByText(/Software Engineer Intern/i).closest('div')!;
-    const dropZone = screen.getByText(/Shortlist/i).closest('div')!;
-
-    fireEvent.dragStart(dragItem);
-    fireEvent.dragOver(dropZone);
-    fireEvent.drop(dropZone);
-
-    await waitFor(() => {
-      expect(screen.getAllByText(/Software Engineer Intern/i).length).toBeGreaterThan(1);
-    });
-
-    const removeButton = screen.getByText(/Remove/i);
-    fireEvent.click(removeButton);
-
-    await waitFor(() => {
-      // Should only appear once again in "Available" list
-      expect(screen.getAllByText(/Software Engineer Intern/i).length).toBe(1);
-    });
-  });
-
-  it('submits the shortlist when all residencies are moved', async () => {
-    render(<UserHomePage />);
-    await waitFor(() => screen.getByText(/Software Engineer Intern/i));
-
-    const dropZone = screen.getByText(/Shortlist/i).closest('div')!;
-    const items = mockUsers.map(user =>
-      screen.getByText(new RegExp(user.title, 'i')).closest('div')!
+    await waitFor(() =>
+      expect(screen.getByText('Available Residencies')).toBeInTheDocument()
     );
 
-    for (const item of items) {
-      fireEvent.dragStart(item);
-      fireEvent.dragOver(dropZone);
-      fireEvent.drop(dropZone);
-    }
+    expect(screen.getByText('Frontend Developer')).toBeInTheDocument();
+    expect(screen.getByText('Backend Developer')).toBeInTheDocument();
+    expect(screen.getByText('Shortlist')).toBeInTheDocument();
+  });
+
+  it('adds user to shortlist by simulating drag logic manually', async () => {
+    render(<UserHomePage />);
+
+    await waitFor(() =>
+      expect(screen.getByText('Frontend Developer')).toBeInTheDocument()
+    );
+
+    // Simulate drag logic by clicking on the actual user card
+    const frontendCard = screen.getByText('Frontend Developer');
+    fireEvent.click(frontendCard); // Simulate selecting it for drag
+
+    const dropZone = screen.getByText('Shortlist').closest('.shortlist');
+    fireEvent.drop(dropZone!); // Simulate dropping into shortlist
 
     await waitFor(() => {
-      const submitButton = screen.getByText(/Submit Rankings/i);
-      fireEvent.click(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/submit-rankings'),
-        expect.objectContaining({ method: 'POST' })
-      );
-      expect(alertSpy).toHaveBeenCalledWith('Rankings submitted successfully!');
+      const shortlist = screen.getByText('Shortlist').closest('.shortlist')!;
+      expect(within(shortlist).getByText('Frontend Developer')).toBeInTheDocument();
     });
   });
 
-  it('allows drag-sorting within the shortlist', async () => {
-    render(<UserHomePage />);
-    await waitFor(() => screen.getByText(/Software Engineer Intern/i));
+  it('submits shortlist with mocked alert', async () => {
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    (fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUsers,
+    });
 
-    const dropZone = screen.getByText(/Shortlist/i).closest('div')!;
-    const items = mockUsers.map(user =>
-      screen.getByText(new RegExp(user.title, 'i')).closest('div')!
+    render(<UserHomePage />);
+
+    await waitFor(() =>
+      expect(screen.getByText('Frontend Developer')).toBeInTheDocument()
     );
 
-    // Add both to shortlist
-    for (const item of items) {
-      fireEvent.dragStart(item);
-      fireEvent.dragOver(dropZone);
-      fireEvent.drop(dropZone);
-    }
+    const frontendCard = screen.getByText('Frontend Developer');
+    const backendCard = screen.getByText('Backend Developer');
+    const dropZone = screen.getByText('Shortlist').closest('.shortlist');
 
-    // Simulate sorting: move second item to first position
-    const dragSource = screen.getByText(/Data Analyst Intern/i).closest('div')!;
-    const dragTarget = screen.getByText(/Software Engineer Intern/i).closest('div')!;
+    fireEvent.click(frontendCard);
+    fireEvent.drop(dropZone!);
 
-    fireEvent.dragStart(dragSource);
-    fireEvent.dragOver(dragTarget);
+    fireEvent.click(backendCard);
+    fireEvent.drop(dropZone!);
 
-    // Check both titles are still rendered
-    await waitFor(() => {
-      expect(screen.getByText(/Software Engineer Intern/i)).toBeInTheDocument();
-      expect(screen.getByText(/Data Analyst Intern/i)).toBeInTheDocument();
-    });
+    const submitButton = await screen.findByText('Submit Rankings');
+    fireEvent.click(submitButton);
+
+    await waitFor(() =>
+      expect(alertMock).toHaveBeenCalledWith('Rankings submitted successfully!')
+    );
+
+    alertMock.mockRestore();
   });
 });

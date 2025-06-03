@@ -1,131 +1,78 @@
-import { describe, it, vi, beforeEach, afterEach, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CompanyLogin } from "../../components/pages/Login/CompanyLogin";
-import { BrowserRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 
-// Mocks
+// Step 1: Create a mock function for navigate
+const navigateMock = vi.fn();
+
+// Step 2: Mock useNavigate BEFORE tests run
 vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
+  const actual = await vi.importActual<typeof import("react-router-dom")>(
+    "react-router-dom"
+  );
   return {
     ...actual,
-    useNavigate: () => vi.fn(),
+    useNavigate: () => navigateMock,
   };
 });
 
-// Mock EmailField and PasswordField
-vi.mock("../../../forms/EmailField", () => ({
-  EmailField: ({ value, onChange, ...props }: any) => (
+// Mock EmailField
+vi.mock("../../components/forms/EmailField", () => ({
+  EmailField: ({ value, onChange }: any) => (
     <input
       type="email"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      {...props}
+      placeholder="Email"
+      data-testid="email"
     />
   ),
 }));
 
-vi.mock("../../../forms/PasswordField", () => ({
-  PasswordField: ({ value, onChange, ...props }: any) => (
+// Mock PasswordField
+vi.mock("../../components/forms/PasswordField", () => ({
+  PasswordField: ({ value, onChange, placeholder }: any) => (
     <input
       type="password"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      {...props}
+      placeholder={placeholder}
+      data-testid="password"
     />
   ),
 }));
 
-function renderWithRouter(ui: React.ReactElement) {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-}
+describe("CompanyLogin Integration Test", () => {
+  const originalFetch = global.fetch;
 
-describe("CompanyLogin (Vite/Vitest)", () => {
   beforeEach(() => {
-    global.fetch = vi.fn();
-    vi.stubGlobal("alert", vi.fn());
-    vi.stubGlobal("localStorage", {
-      setItem: vi.fn(),
-    });
-  });
-
-  afterEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders all required fields", () => {
-    renderWithRouter(<CompanyLogin />);
-
-    expect(screen.getByText("Create Company Account")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("First Name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Last Name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Enter your company name")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Salary offered")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Describe the job role")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Re-enter your password")).toBeInTheDocument();
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
-  it("alerts on missing first or last name", async () => {
-    renderWithRouter(<CompanyLogin />);
-    fireEvent.click(screen.getByText("Submit"));
-
-    await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith("First Name and Last Name are required.");
-    });
-  });
-
-  it("alerts when passwords do not match", async () => {
-    renderWithRouter(<CompanyLogin />);
-
-    fireEvent.change(screen.getByPlaceholderText("First Name"), {
-      target: { value: "John" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Last Name"), {
-      target: { value: "Doe" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Enter your company name"), {
-      target: { value: "OpenAI" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Salary offered"), {
-      target: { value: "100000" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Describe the job role"), {
-      target: { value: "AI Engineer role" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Re-enter your password"), {
-      target: { value: "wrongpassword" },
-    });
-    fireEvent.change(screen.getByRole("textbox", { name: /email/i }), {
-      target: { value: "test@example.com" },
-    });
-    fireEvent.change(screen.getAllByRole("textbox", { name: /password/i })[0], {
-      target: { value: "password123" },
-    });
-
-    fireEvent.click(screen.getByText("Submit"));
-
-    await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith("Passwords do not match.");
-    });
-  });
-
-  it("sends two fetch requests on valid submission", async () => {
-    const userResponse = {
-      company_id: 42,
-    };
-
+  it("fills out form and submits successfully", async () => {
+    // Step 3: Mock both fetch calls
     global.fetch = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify(userResponse),
-      })
+        text: () => Promise.resolve(JSON.stringify({ company_id: 123 })),
+      } as any)
       .mockResolvedValueOnce({
         ok: true,
-        text: async () => JSON.stringify({}),
-      });
+        text: () => Promise.resolve(JSON.stringify({ success: true })),
+      } as any);
 
-    renderWithRouter(<CompanyLogin />);
+    render(
+      <MemoryRouter>
+        <CompanyLogin />
+      </MemoryRouter>
+    );
 
-    // Fill required fields
+    // Fill in all fields
     fireEvent.change(screen.getByPlaceholderText("First Name"), {
       target: { value: "Alice" },
     });
@@ -133,33 +80,33 @@ describe("CompanyLogin (Vite/Vitest)", () => {
       target: { value: "Smith" },
     });
     fireEvent.change(screen.getByPlaceholderText("Enter your company name"), {
-      target: { value: "TechCorp" },
+      target: { value: "Acme Inc." },
     });
-    fireEvent.change(screen.getByRole("spinbutton"), {
-      target: { value: 5 },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Salary offered"), {
-      target: { value: "90000" },
-    });
-    fireEvent.change(screen.getByPlaceholderText("Describe the job role"), {
-      target: { value: "Frontend Developer" },
-    });
-    fireEvent.change(screen.getByRole("textbox", { name: /email/i }), {
+    fireEvent.change(screen.getByPlaceholderText("Email"), {
       target: { value: "alice@example.com" },
     });
-    fireEvent.change(screen.getAllByRole("textbox", { name: /password/i })[0], {
-      target: { value: "password123" },
+    fireEvent.change(screen.getByPlaceholderText("Enter your password"), {
+      target: { value: "pass1234" },
     });
     fireEvent.change(screen.getByPlaceholderText("Re-enter your password"), {
-      target: { value: "password123" },
+      target: { value: "pass1234" },
     });
 
-    fireEvent.click(screen.getByText("Submit"));
+    fireEvent.change(screen.getByPlaceholderText("Number of available jobs"), {
+      target: { value: "2" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Salary offered"), {
+      target: { value: "80000" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("Describe the job role"), {
+      target: { value: "Software Dev" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit" }));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(2);
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("/register"), expect.any(Object));
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("/create-residency"), expect.any(Object));
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(navigateMock).toHaveBeenCalledWith("/company-dashboard");
     });
   });
 });

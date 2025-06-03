@@ -5,9 +5,9 @@ interface PasswordProps {
   onChange: (newVal: string) => void;
   style?: React.CSSProperties;
   className?: string;
+  placeholder?: string;
 }
-
-export function PasswordField({ value, onChange, style, className }: PasswordProps) {
+export function PasswordField({ value, onChange, style, className, placeholder }: PasswordProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       onChange(e.target.value);
@@ -23,7 +23,7 @@ export function PasswordField({ value, onChange, style, className }: PasswordPro
       type="text" // not password so users can see what they're typing
       value={value}
       onChange={handleChange}
-      placeholder="############"
+      placeholder={placeholder}
       style={style}
       className={className}
     />

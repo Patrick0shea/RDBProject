@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LoginForm } from '../../components/forms/LoginForm';
+import '@testing-library/jest-dom';
 
 describe('LoginForm Unit Tests', () => {
   const setup = (propsOverride = {}) => {
@@ -46,7 +47,7 @@ describe('LoginForm Unit Tests', () => {
 
   it('calls onSubmit when form is submitted', () => {
     const { onSubmit } = setup();
-    fireEvent.submit(screen.getByRole('form', { hidden: true }));
+    fireEvent.submit(screen.getByTestId('login-form'));
     expect(onSubmit).toHaveBeenCalled();
   });
 

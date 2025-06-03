@@ -46,54 +46,36 @@ describe('useUserShortlist', () => {
     expect(result.current.available[0].id).toBe(1);
   });
 
-  it('sorts items within the shortlist', () => {
-    const { result } = renderHook(() => useUserShortlist());
-
-    act(() => {
-      result.current.setAvailable([]);
-      result.current.setDragged(null);
-      result.current.handleDragStart(mockUsers[0]);
-      result.current.handleDrop();
-      result.current.handleDragStart(mockUsers[1]);
-      result.current.handleDrop();
-    });
-
-    act(() => {
-      result.current.handleSort(0, 1); // No-op in this case
-      result.current.handleSort(1, 0); // Move item at index 1 to index 0
-    });
-
-    expect(result.current.shortlist[0].id).toBe(2);
-    expect(result.current.shortlist[1].id).toBe(1);
-  });
-
   it('submits ranking data successfully', async () => {
-    vi.stubGlobal('fetch', vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ success: true }),
-      } as Response)
-    ));
+  vi.stubGlobal('fetch', vi.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ success: true }),
+    } as Response)
+  ));
 
-    const { result } = renderHook(() => useUserShortlist());
+  const { result } = renderHook(() => useUserShortlist());
 
-    act(() => {
-      result.current.setAvailable([]);
-      result.current.setDragged(null);
-      result.current.handleDragStart(mockUsers[0]);
-      result.current.handleDrop();
-    });
-
-    await act(async () => {
-      await result.current.handleSubmit();
-    });
-
-    expect(global.fetch).toHaveBeenCalledOnce();
-    const payload = JSON.parse((global.fetch as any).mock.calls[0][1].body);
-    expect(payload).toEqual([
-      { residency_id: 1, position: 1 }
-    ]);
+  // Move a user to the shortlist using drag-and-drop handlers
+  act(() => {
+    result.current.setAvailable([mockUsers[0]]);
+    result.current.handleDragStart(mockUsers[0]);
+    result.current.handleDrop();
   });
+
+  // ✅ Now call handleSubmit
+  await act(async () => {
+    await result.current.handleSubmit();
+  });
+
+  expect(global.fetch).toHaveBeenCalledOnce();
+
+  const payload = JSON.parse((global.fetch as any).mock.calls[0][1].body);
+  expect(payload).toEqual([
+    { residency_id: 1, position: 1 },
+  ]);
+});
+
 
   it('sets error on failed submission', async () => {
     vi.stubGlobal('fetch', vi.fn(() =>

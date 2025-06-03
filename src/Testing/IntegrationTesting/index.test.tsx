@@ -1,34 +1,22 @@
-import { describe, it, vi, beforeEach, afterEach, expect } from 'vitest';
-import * as ReactDOM from 'react-dom/client';
+// src/Testing/IntegrationTesting/index.test.tsx
 
-// Important: import must come *after* the mocks for them to take effect
-let container: HTMLDivElement;
+// 👇 This import MUST come first
+import '../setup/reactDomClientMock';
+
+import { describe, it, expect } from 'vitest';
+import { mockCreateRoot, mockRender } from '../setup/reactDomClientMock';
 
 describe('index.tsx', () => {
-  const renderMock = vi.fn();
+  it('mounts React app to #root and calls render', async () => {
+    const root = document.createElement('div');
+    root.id = 'root';
+    document.body.appendChild(root);
 
-  beforeEach(() => {
-    // Create and attach root container
-    container = document.createElement('div');
-    container.id = 'root';
-    document.body.appendChild(container);
+    // 👇 This must come *after* the mock is hoisted
+    await import('../../index.tsx');
 
-    // Mock createRoot
-    vi.spyOn(ReactDOM, 'createRoot').mockReturnValue({
-      render: renderMock,
-    } as unknown as ReactDOM.Root);
-  });
-
-  afterEach(() => {
-    document.body.removeChild(container);
-    vi.resetAllMocks();
-  });
-
-  it('calls ReactDOM.createRoot and renders the App', async () => {
-    await import('../../index');
-
-    expect(ReactDOM.createRoot).toHaveBeenCalledOnce();
-    expect(ReactDOM.createRoot).toHaveBeenCalledWith(container);
-    expect(renderMock).toHaveBeenCalledOnce();
+    expect(mockCreateRoot).toHaveBeenCalledOnce();
+    expect(mockCreateRoot).toHaveBeenCalledWith(root);
+    expect(mockRender).toHaveBeenCalledOnce();
   });
 });

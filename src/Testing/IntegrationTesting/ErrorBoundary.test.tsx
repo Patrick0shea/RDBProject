@@ -1,37 +1,42 @@
-import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import ErrorBoundary from '../../components/shared/ErrorBoundary';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import ErrorBoundary from "../../components/shared/ErrorBoundary";
+import "@testing-library/jest-dom";
 
-// A component that throws an error when rendered
-function ProblemChild(): React.ReactElement | null {
-  throw new Error('Simulated error');
-  // Return null to satisfy the return type
+// Helper component that throws an error
+function Bomb(): React.ReactElement | null {
+  throw new Error("Boom!");
+  // Returning null to satisfy the return type, though this line is never reached
   return null;
 }
 
-describe('ErrorBoundary Component', () => {
-  it('renders children when no error is thrown', () => {
+describe("ErrorBoundary integration", () => {
+  it("renders children when there is no error", () => {
     render(
       <ErrorBoundary>
-        <div>Safe content</div>
+        <div>All good</div>
       </ErrorBoundary>
     );
-    expect(screen.getByText('Safe content')).toBeInTheDocument();
+
+    expect(screen.getByText("All good")).toBeInTheDocument();
   });
 
-  it('catches errors and displays fallback UI when a child throws', () => {
-    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it("catches error and displays fallback UI", () => {
+    // Suppress console.error for cleaner test output
+    const consoleError = console.error;
+    console.error = vi.fn();
 
     render(
       <ErrorBoundary>
-        <ProblemChild />
+        <Bomb />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
-    expect(screen.getByText('Simulated error')).toBeInTheDocument();
+    expect(screen.getByText("Something went wrong.")).toBeInTheDocument();
+    expect(screen.getByText("Boom!")).toBeInTheDocument();
 
-    consoleErrorMock.mockRestore();
+    // Restore console.error
+    console.error = consoleError;
   });
 });

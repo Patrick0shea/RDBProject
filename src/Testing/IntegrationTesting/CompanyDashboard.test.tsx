@@ -1,44 +1,42 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import CompanyDashboard3 from '../../components/pages/dashboards/CompanyDashboard3';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import CompanyDashboard3 from '../../components/pages/dashboards/CompanyDashboard3'; // ✅ Update this path
+import '@testing-library/jest-dom';
 
-vi.mock('../HomePages/CompanyHomePage', () => ({
-  default: () => <div>Company Home Page Loaded</div>,
-}));
-
-describe('CompanyDashboard Integration', () => {
-  it('renders CompanyHomePage when at root route', () => {
+describe('CompanyDashboard', () => {
+  it('renders the CompanyHomePage component at /', () => {
     render(
       <MemoryRouter initialEntries={['/']}>
         <CompanyDashboard3 />
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Company Home Page Loaded')).toBeInTheDocument();
+    // Adjust this to match something unique in CompanyHomePage
+    expect(screen.getByText(/shortlist/i)).toBeInTheDocument();
   });
 
-  it('handles renderRoutes error gracefully', async () => {
-    // Force an error in renderRoutes
-    vi.mock('react-router-dom', async (original) => {
-      const mod = await original;
-      return {
-        ...mod,
-        Routes: () => {
-          throw new Error('Forced error');
-        },
-      };
-    });
+  it('shows fallback UI if an error occurs', () => {
+    // Mock a broken child to force an error
+    const BrokenComponent = () => {
+      throw new Error('Test error');
+    };
 
-    // Dynamically import again to apply mocked Routes
-    const { default: BrokenDashboard } = await import('../../components/pages/dashboards/CompanyDashboard3');
+    const FaultyDashboard = () => (
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<BrokenComponent />} />
+        </Routes>
+      </div>
+    );
 
     render(
       <MemoryRouter initialEntries={['/']}>
-        <BrokenDashboard />
+        <FaultyDashboard />
       </MemoryRouter>
     );
 
+    // The error fallback message
     expect(
       screen.getByText(/something went wrong while loading the dashboard/i)
     ).toBeInTheDocument();

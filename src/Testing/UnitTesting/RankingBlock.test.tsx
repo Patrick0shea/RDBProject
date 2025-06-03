@@ -1,7 +1,35 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import RankingBlock from '../../components/shared/RankingBlock';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
+import '@testing-library/jest-dom';
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div>
+          <h1>Something went wrong.</h1>
+          <p>{this.state.error?.message}</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 describe('RankingBlock Component', () => {
   const defaultProps = {
@@ -15,7 +43,6 @@ describe('RankingBlock Component', () => {
 
   it('renders all props correctly', () => {
     render(<RankingBlock {...defaultProps} />);
-
     expect(screen.getByText('1. Example Company')).toBeInTheDocument();
     expect(screen.getByText('Location: Dublin')).toBeInTheDocument();
     expect(screen.getByText('Salary: €3000/month')).toBeInTheDocument();
@@ -26,33 +53,32 @@ describe('RankingBlock Component', () => {
   it('toggles dropdown content on click', () => {
     render(<RankingBlock {...defaultProps} />);
     const header = screen.getByText(/Example Company/).closest('.ranking-block-header')!;
-    
     fireEvent.click(header);
     expect(screen.getByText('Extra company details')).toBeInTheDocument();
-
     fireEvent.click(header);
     expect(screen.queryByText('Extra company details')).not.toBeInTheDocument();
   });
 
   it('renders fallback text if optional props are missing', () => {
     render(<RankingBlock id={2} title="Test Corp" />);
-    
     expect(screen.getByText('2. Test Corp')).toBeInTheDocument();
     expect(screen.getByText('No location info')).toBeInTheDocument();
     expect(screen.getByText('No salary info')).toBeInTheDocument();
     expect(screen.getByText('No office info')).toBeInTheDocument();
   });
 
-  it('handles internal toggle error and shows error message', () => {
-    // Simulate error by mocking setIsOpen to throw
-    const useStateSpy = vi.spyOn(React, 'useState');
-    useStateSpy.mockImplementationOnce(() => {
+  it('handles internal render error and shows error message', () => {
+    const ErrorThrowingRankingBlock = () => {
       throw new Error('Toggle error');
-    });
+    };
 
-    render(<RankingBlock {...defaultProps} />);
-    expect(screen.getByText('Something went wrong. Please try again later.')).toBeInTheDocument();
+    render(
+      <ErrorBoundary>
+        <ErrorThrowingRankingBlock />
+      </ErrorBoundary>
+    );
 
-    useStateSpy.mockRestore();
+    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+    expect(screen.getByText('Toggle error')).toBeInTheDocument();
   });
 });

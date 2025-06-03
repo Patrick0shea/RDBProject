@@ -39,6 +39,7 @@ const RankingBlock: React.FC<RankingBlockProps> = ({
           <div
             className="ranking-block-header"
             onClick={toggleDropdown}
+            data-testid={`toggle-${id}-${title.replace(/\s+/g, '-')}`}
             style={{
               display: 'flex',
               justifyContent: 'space-between',

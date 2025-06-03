@@ -93,7 +93,7 @@ const ShortlistColumn: React.FC<ShortlistColumnProps> = ({
             dropdownContent={
               <>
                 <p>{item.title} in shortlist</p>
-                <button onClick={() => handleRemove(item.id)}>Remove</button>
+                <button onClick={() => handleRemove(item.id)} aria-label="Remove">Remove</button>
               </>
             }
           />

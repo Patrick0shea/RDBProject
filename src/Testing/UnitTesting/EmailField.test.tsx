@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EmailField } from '../../components/forms/EmailField';
+import '@testing-library/jest-dom';
+
 
 describe('EmailField Component', () => {
   it('renders the input field with correct type and placeholder', () => {

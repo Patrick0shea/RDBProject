@@ -1,18 +1,33 @@
-// src/index.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import { describe, it, expect, vi } from 'vitest';
 
-const rootElement = document.getElementById('root');
+// ⬇️ Mock before importing the module under test
+const mockRender = vi.fn();
+const mockCreateRoot = vi.fn(() => ({
+  render: mockRender
+}));
 
-if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement as HTMLElement);
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
-}
+// ⬇️ This mock must come BEFORE the import of `index.tsx`
+vi.mock('react-dom/client', async () => {
+  const actual = await vi.importActual<typeof import('react-dom/client')>('react-dom/client');
+  return {
+    ...actual,
+    createRoot: mockCreateRoot
+  };
+});
 
-// Optional: log web vitals
+describe('index.tsx', () => {
+  it('mounts React app to #root and calls render', async () => {
+    // ⬇️ Create a fake root node before import
+    const root = document.createElement('div');
+    root.id = 'root';
+    document.body.appendChild(root);
+
+    // ⬇️ Dynamically import the entrypoint AFTER mocks
+    await import('../../RDBProject/src/index.tsx');
+
+    // ✅ Assert createRoot and render were called correctly
+    expect(mockCreateRoot).toHaveBeenCalledOnce();
+    expect(mockCreateRoot).toHaveBeenCalledWith(root);
+    expect(mockRender).toHaveBeenCalledOnce();
+  });
+});

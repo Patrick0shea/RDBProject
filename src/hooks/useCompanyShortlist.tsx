@@ -1,3 +1,4 @@
+// hooks/useCompanyShortlist.ts
 import { useState } from "react";
 import type { Company } from "../types/company";
 
@@ -31,17 +32,17 @@ export const useCompanyShortlist = (initial: Company[]) => {
   };
 
   const handleRemove = (id: number) => {
-  try {
-    const removed = shortlist.find((c) => c.id === id);
-    if (removed) {
-      setShortlist((prev) => prev.filter((c) => c.id !== id));
-      setAvailable((prev) => [...prev, removed]);
+    try {
+      const removed = shortlist.find((c) => c.id === id);
+      if (removed) {
+        setShortlist((prev) => prev.filter((c) => c.id !== id));
+        setAvailable((prev) => [...prev, removed]);
+      }
+    } catch (err) {
+      console.error("Error removing item from shortlist:", err);
+      setError("An error occurred while removing the item.");
     }
-  } catch (err) {
-    console.error("Error removing item from shortlist:", err);
-    setError("An error occurred while removing the item.");
-  }
-};
+  };
 
   const handleSort = (dragIndex: number, hoverIndex: number) => {
     try {
@@ -76,6 +77,6 @@ export const useCompanyShortlist = (initial: Company[]) => {
     handleRemove,
     handleSort,
     handleSubmit,
-    error, // optionally consume this in your component
+    error,
   };
 };

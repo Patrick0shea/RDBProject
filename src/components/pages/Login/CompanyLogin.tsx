@@ -28,7 +28,8 @@ export function CompanyLogin() {
       return;
     }
     if (password !== confirmPassword) {
-      throw new Error("Passwords do not match.");
+      alert("Passwords do not match.");
+      return;
     }
 
     const userType = 1; // company user type
@@ -230,6 +231,7 @@ export function CompanyLogin() {
             value={password}
             onChange={setPassword}
             className="admin-login-input"
+            placeholder="Enter your password"
           />
         </label>
 

@@ -1,84 +1,102 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { useCompanyShortlist } from '../../hooks/useCompanyShortlist';
+import type { Company } from '../../types/company'; // ✅ Adjust this path if needed
 
-const mockCompanies = [
-  { id: 1, name: 'Company A' },
-  { id: 2, name: 'Company B' },
+const sampleCompanies: Company[] = [
+  { id: 1, name: 'Apple', capacity: 100, hasRanked: false },
+  { id: 2, name: 'Google', capacity: 200, hasRanked: false },
 ];
 
-describe('useCompanyShortlist', () => {
-  it('initializes with given available companies', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
-    expect(result.current.available).toEqual(mockCompanies);
-    expect(result.current.shortlist).toEqual([]);
+describe('useCompanyShortlist hook', () => {
+  it('initializes with available companies', () => {
+    const { result } = renderHook(() => useCompanyShortlist(sampleCompanies));
+    expect(result.current.available).toHaveLength(2);
+    expect(result.current.shortlist).toHaveLength(0);
   });
 
-  it('can start dragging a company', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
+  it('handles dragging and dropping a company', () => {
+    const { result } = renderHook(() => useCompanyShortlist(sampleCompanies));
+
     act(() => {
-      result.current.handleDragStart(mockCompanies[0]);
+      result.current.handleDragStart(sampleCompanies[0]);
     });
-    expect(result.current.dragged).toEqual(mockCompanies[0]);
-  });
-
-  it('can drop a dragged company to shortlist', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
 
     act(() => {
-      result.current.handleDragStart(mockCompanies[0]);
       result.current.handleDrop();
     });
 
-    expect(result.current.shortlist).toEqual([mockCompanies[0]]);
-    expect(result.current.available).toEqual([mockCompanies[1]]);
-    expect(result.current.dragged).toBe(null);
+    expect(result.current.shortlist).toHaveLength(1);
+    expect(result.current.shortlist[0].name).toBe('Apple');
+    expect(result.current.available).toHaveLength(1);
+    expect(result.current.available[0].name).toBe('Google');
   });
 
-  it('can remove a company from the shortlist', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
+  it('handles removing a company from shortlist', () => {
+    const { result } = renderHook(() => useCompanyShortlist(sampleCompanies));
 
     act(() => {
-      result.current.handleDragStart(mockCompanies[0]);
+      result.current.handleDragStart(sampleCompanies[0]);
+    });
+
+    act(() => {
       result.current.handleDrop();
+    });
+
+    act(() => {
       result.current.handleRemove(1);
     });
 
-    expect(result.current.shortlist).toEqual([]);
-    expect(result.current.available).toEqual(expect.arrayContaining([mockCompanies[0], mockCompanies[1]]));
+    expect(result.current.shortlist).toHaveLength(0);
+    expect(result.current.available).toHaveLength(2);
   });
 
-  it('sorts companies in the shortlist', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
+  it('handles sorting companies', () => {
+    const { result } = renderHook(() => useCompanyShortlist(sampleCompanies));
 
     act(() => {
-      result.current.handleDragStart(mockCompanies[0]);
-      result.current.handleDrop();
-      result.current.handleDragStart(mockCompanies[1]);
+      result.current.handleDragStart(sampleCompanies[0]);
+    });
+    act(() => {
       result.current.handleDrop();
     });
 
-    // Swap index 0 and 1
     act(() => {
-      result.current.handleSort(0, 1);
+      result.current.handleDragStart(sampleCompanies[1]);
+    });
+    act(() => {
+      result.current.handleDrop();
     });
 
-    expect(result.current.shortlist[0].id).toBe(2);
-    expect(result.current.shortlist[1].id).toBe(1);
+    act(() => {
+      result.current.handleSort(1, 0);
+    });
+
+    expect(result.current.shortlist[0].name).toBe('Google');
+    expect(result.current.shortlist[1].name).toBe('Apple');
   });
 
-  it('submits shortlist and logs ranking', () => {
-    const { result } = renderHook(() => useCompanyShortlist(mockCompanies));
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  it('handles submission', () => {
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const consoleMock = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useCompanyShortlist(sampleCompanies));
 
     act(() => {
-      result.current.handleDragStart(mockCompanies[0]);
+      result.current.handleDragStart(sampleCompanies[0]);
+    });
+    act(() => {
       result.current.handleDrop();
+    });
+
+    act(() => {
       result.current.handleSubmit();
     });
 
-    expect(alertSpy).toHaveBeenCalledWith('Submitted! Check console for result.');
-    expect(logSpy).toHaveBeenCalledWith('Ranking array:', [['Company A', 1]]);
+    expect(alertMock).toHaveBeenCalledWith("Submitted! Check console for result.");
+    expect(consoleMock).toHaveBeenCalledWith("Ranking array:", [["Apple", 1]]);
+
+    alertMock.mockRestore();
+    consoleMock.mockRestore();
   });
 });

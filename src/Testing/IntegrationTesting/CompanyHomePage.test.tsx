@@ -1,87 +1,90 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import CompanyHomePage from '../../components/pages/HomePages/CompanyHomePage';
+import { render, screen, fireEvent } from "@testing-library/react";
+import CompanyHomePage from "../../components/pages/HomePages/CompanyHomePage";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
-vi.mock('../../shared/RankingBlock', () => ({
-  default: ({ title, dropdownContent }: any) => (
-    <div>
-      <div>{title}</div>
-      {dropdownContent}
-    </div>
-  ),
-}));
+beforeEach(() => {
+  vi.spyOn(window, "alert").mockImplementation(() => {});
+});
 
-describe('CompanyHomePage Integration', () => {
-  let alertMock: any;
-  let consoleMock: any;
-
-  beforeEach(() => {
-    alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-    consoleMock = vi.spyOn(console, 'log').mockImplementation(() => {});
+describe("CompanyHomePage (Vitest)", () => {
+  it("renders available companies", () => {
+    render(<CompanyHomePage />);
+    const companies = screen.getAllByTestId("company-item");
+    expect(companies.length).toBeGreaterThan(0);
+    expect(companies.some(item => item.textContent?.includes("Amazon Web Services"))).toBe(true);
   });
 
-  it('renders all initial companies', () => {
+  it("moves a company to shortlist on drop", () => {
     render(<CompanyHomePage />);
-    expect(screen.getByText(/Amazon Web Services/)).toBeInTheDocument();
-    expect(screen.getByText(/Stripe/)).toBeInTheDocument();
+    const items = screen.getAllByTestId("company-item");
+    const amazon = items.find(item => item.textContent?.includes("Amazon Web Services"));
+    expect(amazon).toBeDefined();
+
+    const dropZone = screen.getByTestId("shortlist-drop-zone");
+
+    fireEvent.dragStart(amazon!);
+    fireEvent.dragOver(dropZone);
+    fireEvent.drop(dropZone);
+
+    expect(dropZone.textContent?.includes("Amazon Web Services")).toBe(true);
   });
 
-  it('moves a company to shortlist on simulated drag-and-drop', () => {
+  it("removes a company from shortlist", () => {
     render(<CompanyHomePage />);
+    const dropZone = screen.getByTestId("shortlist-drop-zone");
 
-    // Simulate drag start on Amazon
-    const amazon = screen.getByText('Amazon Web Services');
-    fireEvent.dragStart(amazon);
+    const items = screen.getAllByTestId("company-item");
+    const amazon = items.find(item =>
+      item.textContent?.includes("Amazon Web Services")
+    );
+    expect(amazon).toBeDefined();
 
-    // Simulate drop on shortlist area
-    const shortlistArea = screen.getByText('Shortlist');
-    fireEvent.dragOver(shortlistArea);
-    fireEvent.drop(shortlistArea);
+    // Move it to shortlist
+    fireEvent.dragStart(amazon!);
+    fireEvent.dragOver(dropZone);
+    fireEvent.drop(dropZone);
+    expect(dropZone.textContent?.includes("Amazon Web Services")).toBe(true);
 
-    expect(screen.getAllByText('Amazon Web Services')).toHaveLength(2); // one in each block
-  });
+    // Open dropdown
+    const toggle = screen.getByTestId("toggle-1-Amazon-Web-Services");
+    fireEvent.click(toggle);
 
-  it('removes a company from shortlist', () => {
-    render(<CompanyHomePage />);
-    const amazon = screen.getByText('Amazon Web Services');
-
-    // Drag Amazon to shortlist
-    fireEvent.dragStart(amazon);
-    const shortlistArea = screen.getByText('Shortlist');
-    fireEvent.dragOver(shortlistArea);
-    fireEvent.drop(shortlistArea);
-
-    // Click remove
-    const removeButton = screen.getByText('Remove');
+    // Remove it
+    const removeButton = screen.getByTestId("remove-button");
     fireEvent.click(removeButton);
 
-    expect(screen.getByText('Amazon Web Services')).toBeInTheDocument();
+    expect(dropZone.textContent?.includes("Amazon Web Services")).toBe(false);
   });
 
-  it('submits and shows alert when shortlist is full', () => {
+  it("shows submit button when all companies are shortlisted", () => {
     render(<CompanyHomePage />);
+    const dropZone = screen.getByTestId("shortlist-drop-zone");
 
-    // Move all companies to shortlist
-    const titles = [
-      'Amazon Web Services',
-      'Shannonside Capital',
-      'Intercome',
-      'Transact',
-      'Stripe',
-    ];
-
-    titles.forEach(title => {
-      const item = screen.getByText(title);
-      fireEvent.dragStart(item);
-      const shortlistArea = screen.getByText('Shortlist');
-      fireEvent.dragOver(shortlistArea);
-      fireEvent.drop(shortlistArea);
+    const companies = screen.getAllByTestId("company-item");
+    companies.forEach(company => {
+      fireEvent.dragStart(company);
+      fireEvent.dragOver(dropZone);
+      fireEvent.drop(dropZone);
     });
 
-    const submitButton = screen.getByText('Submit Rankings');
+    const submitButton = screen.getByRole("button", { name: "Submit Rankings" });
+    expect(submitButton).not.toBeNull();
+  });
+
+  it("calls alert when submitted", () => {
+    render(<CompanyHomePage />);
+    const dropZone = screen.getByTestId("shortlist-drop-zone");
+
+    const companies = screen.getAllByTestId("company-item");
+    companies.forEach(company => {
+      fireEvent.dragStart(company);
+      fireEvent.dragOver(dropZone);
+      fireEvent.drop(dropZone);
+    });
+
+    const submitButton = screen.getByRole("button", { name: "Submit Rankings" });
     fireEvent.click(submitButton);
 
-    expect(alertMock).toHaveBeenCalledWith('Submitted! Check console for result.');
-    expect(consoleMock).toHaveBeenCalledWith('Ranking array:', expect.any(Array));
+    expect(window.alert).toHaveBeenCalledWith("Submitted! Check console for result.");
   });
 });

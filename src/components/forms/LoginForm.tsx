@@ -34,6 +34,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     >
       <form
         onSubmit={onSubmit}
+        data-testid="login-form"
         className="company-list"
         style={{ width: '90%', maxWidth: '500px', padding: '2.5rem' }}
       >
