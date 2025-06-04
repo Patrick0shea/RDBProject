@@ -1,37 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import RankingBlock from '../../shared/RankingBlock';
 import '../../../styles/App.css';
 
 interface Company {
   id: number;
+  residencyId: number;
   title: string;
+  salary: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  qca: string;
 }
 
 const CompanyHomePage = () => {
-  const initialCompanies: Company[] = [
-    { id: 1, title: "Amazon Web Services" },
-    { id: 2, title: "Shannonside Capital" },
-    { id: 3, title: "Intercome" },
-    { id: 4, title: "Transact" },
-    { id: 5, title: "Stripe" },
-  ];
-
-  const [availableCompanies, setAvailableCompanies] = useState<Company[]>(initialCompanies);
+  const [availableCompanies, setAvailableCompanies] = useState<Company[]>([]);
   const [shortlist, setShortlist] = useState<Company[]>([]);
   const [dragged, setDragged] = useState<Company | null>(null);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/get-offers', {
+          credentials: 'include',
+        })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Raw fetched data:', data);
+        // Set the availableCompanies to the offers array
+        if (Array.isArray(data.offers)) {
+          // Map or pick the properties you want from each offer
+          const companies = data.offers.map((offer: any) => ({
+            id: offer.residency?.id,
+            residencyId: offer.residency?.id, // <-- new field for stricter check
+            title: offer.residency?.description || `Residency #${offer.residency?.id}`,
+            salary: offer.residency?.salary || 0,
+            firstName: offer.student?.first_name || '',
+            lastName: offer.student?.last_name || '',
+            email: offer.student?.email || '',
+            qca: offer.student?.qca || ''
+          }));
+          setAvailableCompanies(companies);
+        } else {
+          console.error('Expected offers to be an array:', data.offers);
+          setAvailableCompanies([]);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to fetch offers:', error);
+        setAvailableCompanies([]);
+      });
+  }, []);
 
   const handleDragStart = (company: Company) => {
     setDragged(company);
   };
 
   const handleDrop = () => {
-    if (!dragged) return;
-    if (!shortlist.find(c => c.id === dragged.id)) {
-      setShortlist(prev => [...prev, dragged]);
-      setAvailableCompanies(prev => prev.filter(c => c.id !== dragged.id));
-    }
-    setDragged(null);
-  };
+  if (!dragged) return;
+
+  const isDuplicateResidency = shortlist.some(
+  (c) => c.residencyId === dragged.residencyId
+);
+
+
+  if (!isDuplicateResidency) {
+    setShortlist((prev) => [...prev, dragged]);
+    setAvailableCompanies((prev) => prev.filter((c) => c.id !== dragged.id));
+  } else {
+    alert("Only one student per residency can be shortlisted.");
+  }
+
+  setDragged(null);
+};
+
 
   const handleRemove = (id: number) => {
     const removed = shortlist.find(c => c.id === id);
@@ -49,16 +92,41 @@ const CompanyHomePage = () => {
   };
 
   const handleSubmit = () => {
-    const rankingArray = shortlist.map((company, index) => [company.title, index + 1]);
-    console.log("Ranking array:", rankingArray);
-    alert("Submitted! Check console for result.");
+    const payload = shortlist.map((company, index) => ({
+      residency_id: company.residencyId,
+      student_id: company.id,
+      rank: index + 1,
+    }));
+
+    fetch('http://localhost:8000/accept-student-offers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ assignments: payload }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Assignment response:', data);
+        alert('Assignments submitted successfully!');
+      })
+      .catch(error => {
+        console.error('Submission error:', error);
+        alert('Failed to submit assignments.');
+      });
   };
 
   return (
     <div className="dashboard-container">
       {/* Left Column */}
       <div className="company-list scrollable">
-        <h2>Available Companies</h2>
+        <h2>Available Students</h2>
         {availableCompanies.map(company => (
           <div
             key={company.id}
@@ -69,11 +137,11 @@ const CompanyHomePage = () => {
           >
             <RankingBlock
               id={company.id}
-              title={company.title}
-              info1={`Location: ${company.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
-              info2={`Salary: €${2500 + company.id * 100}/month`}
-              info3={`No. of Days in Office: ${company.id % 3}`}
-              dropdownContent={<p>{company.title} details</p>}
+              title={`${company.firstName} ${company.lastName}`}
+              info1={`Email: ${company.email}`}
+              info2={`QCA: ${company.qca}`}
+              info3={`Salary: €${company.salary}/month`}
+              dropdownContent={<p>Student ID: ${company.id}</p>}
             />
           </div>
         ))}
@@ -107,23 +175,21 @@ const CompanyHomePage = () => {
             className="shortlist-item"
           >
             <RankingBlock
-              id={index + 1}
-              title={company.title}
-              info1={`Location: ${company.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
-              info2={`Salary: €${2500 + company.id * 100}/month`}
-              info3={`No. of Days in Office: ${company.id % 3}`}
-              dropdownContent={
-                <>
-                  <p>{company.title} in shortlist</p>
-                  <button
-                    onClick={() => handleRemove(company.id)}
-                    data-testid="remove-button"
-                  >
-                    Remove
-                  </button>
-                </>
-              }
-            />
+  id={index + 1}
+  title={`${company.firstName} ${company.lastName}`}
+  info1={`Email: ${company.email}`}
+  info2={`QCA: ${company.qca}`}
+  info3={`Salary: €${company.salary}/month`}
+  dropdownContent={
+    <>
+      <p>{company.title} in shortlist</p>
+      <button onClick={() => handleRemove(company.id)} data-testid="remove-button">
+        Remove
+      </button>
+    </>
+  }
+/>
+
           </div>
         ))}
         {availableCompanies.length === 0 && (
