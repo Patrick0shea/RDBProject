@@ -1,23 +1,5 @@
-<<<<<<< HEAD
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const styles = {
-  button: {
-    backgroundColor: '#007bff',
-    color: '#fff',
-    padding: '0.5rem 1.5rem',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '1rem',
-    marginTop: '1rem',
-  } as React.CSSProperties,
-};
-=======
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
->>>>>>> eaf0c0bffdd8275a3b7ee428bb52e89082859db3
 
 const AdminLoginPage: React.FC = () => {
   const [name, setName] = useState("");
