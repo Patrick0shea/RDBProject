@@ -10,6 +10,10 @@ import LandingPage from './components/pages/LandingPage';
 import { CompanyLogin } from './components/pages/Login/CompanyLogin';
 import AccLoginPage from './components/pages/Login/AccLoginPage';
 import AdminLoginPage from './components/pages/Login/AdminLoginPage';
+<<<<<<< HEAD
+=======
+import ErrorBoundary from './components/shared/ErrorBoundary';
+>>>>>>> dda095a3d0476c0cca66f865f193c5a689fff256
 
 // ErrorBoundary is a custom wrapper that catches runtime errors in children components
 import ErrorBoundary from './components/shared/ErrorBoundary'; // Provides graceful error fallback UI
@@ -27,7 +31,10 @@ function App() {
   return (
     // BrowserRouter: Enables routing using the browser's address bar
     <Router>
+<<<<<<< HEAD
       {/* ErrorBoundary: Catches JavaScript errors in any child components and shows fallback UI */}
+=======
+>>>>>>> dda095a3d0476c0cca66f865f193c5a689fff256
       <ErrorBoundary>
         <Navbar />
 
