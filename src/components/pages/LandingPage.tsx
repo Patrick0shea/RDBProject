@@ -40,13 +40,14 @@ const LandingPageTest: React.FC = () => {
 
   return (
     <div className="admin-login-container">
-      {/* if error message is not null, display it */}
-      {errorMsg && (
-        <div className="error-banner">
-          {errorMsg}
-          <button onClick={() => setErrorMsg(null)}>×</button>
-        </div>
-      )}
+    {/* only render when errorMsg is truthy */}
+    {errorMsg && (
+      <div className="error-banner">
+        <span>{errorMsg}</span>
+        <button onClick={() => setErrorMsg(null)}>×</button>
+      </div>
+    )}
+      
       <div
         className="admin-login-form"
         style={{ maxWidth: '500px', padding: '4rem', maxHeight: '550px' }}

@@ -8,7 +8,7 @@ interface EmailFieldProps {
   className?: string;
 }
 
-export function EmailField({ value, onChange, style, className }: EmailFieldProps) {
+export function EmailField({ value, onChange, style, className }: EmailFieldProps) { /* : = The object we’re destructuring must match the EmailFieldProps type.*/
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       onChange(e.target.value);
@@ -24,7 +24,7 @@ export function EmailField({ value, onChange, style, className }: EmailFieldProp
       value={value}
       onChange={handleChange}
       placeholder="name@email.com"
-      style={style}
+      style={style} 
       className={className}
     />
   );

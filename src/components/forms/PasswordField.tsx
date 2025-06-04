@@ -7,7 +7,7 @@ interface PasswordProps {
   className?: string;
   placeholder?: string;
 }
-export function PasswordField({ value, onChange, style, className, placeholder }: PasswordProps) {
+export function PasswordField({ value, onChange, style, className, placeholder }: PasswordProps) { 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       onChange(e.target.value);
@@ -20,7 +20,7 @@ export function PasswordField({ value, onChange, style, className, placeholder }
 
   return (
     <input
-      type="text" // not password so users can see what they're typing
+      type="text" 
       value={value}
       onChange={handleChange}
       placeholder={placeholder}
