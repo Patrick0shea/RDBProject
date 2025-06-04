@@ -1,5 +1,12 @@
+// Import React and necessary hooks
 import React, { useState, useEffect } from 'react';
 
+/** =======================
+ * Types and Interfaces
+ * =======================
+ */
+
+/** Describes a Student object with academic and behavioral info */
 interface Student {
   id: string;
   name: string;
@@ -11,6 +18,7 @@ interface Student {
   hasRanked: boolean;
 }
 
+/** Describes a Company object with matching capacity */
 interface Company {
   id: string;
   name: string;
@@ -18,17 +26,24 @@ interface Company {
   hasRanked: boolean;
 }
 
+/** Represents a user-submitted feedback item */
 interface Feedback {
   name: string;
   message: string;
 }
 
+/** Props used by the reusable SearchBar component */
 interface SearchBarProps {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
 }
 
+/** =======================
+ * Utility: Render a search bar input
+ * @param props - SearchBarProps (placeholder, value, onChange handler)
+ * @returns a styled text input field
+ */
 const renderSearchBar = ({ placeholder, value, onChange }: SearchBarProps) => (
   <input
     type="text"
@@ -45,19 +60,28 @@ const renderSearchBar = ({ placeholder, value, onChange }: SearchBarProps) => (
   />
 );
 
+/** =======================
+ * Main Admin Dashboard Component
+ * =======================
+ */
 const AdminDashboard: React.FC = () => {
+  // Student data state
   const [students, setStudents] = useState<Student[]>([]);
-  const [openStudentIds, setOpenStudentIds] = useState<Set<string>>(new Set());
+  const [openStudentIds, setOpenStudentIds] = useState<Set<string>>(new Set()); // Tracks which student cards are expanded
 
+  // Company data state
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [openCompanyIds, setOpenCompanyIds] = useState<Set<string>>(new Set());
+  const [openCompanyIds, setOpenCompanyIds] = useState<Set<string>>(new Set()); // Tracks which company cards are expanded
 
+  // Search bar values
   const [studentSearch, setStudentSearch] = useState('');
   const [companySearch, setCompanySearch] = useState('');
   const [feedbackSearch, setFeedbackSearch] = useState('');
 
+  // Feedback state
   const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
 
+  /** Populate student list with mock data once on mount */
   useEffect(() => {
     const mockStudents: Student[] = [
       { id: '24403822', name: 'Sam McLoughlin', qca: 3.88, attendance: 90, averageParticipationPercentage: 20, score: 70, behavioralTrait: 'Team Player', hasRanked: true },
@@ -68,6 +92,7 @@ const AdminDashboard: React.FC = () => {
     setStudents(mockStudents);
   }, []);
 
+  /** Populate company list with mock data once on mount */
   useEffect(() => {
     const mockCompanies: Company[] = [
       { id: '001', name: 'Amazon', capacity: 6, hasRanked: false },
@@ -78,6 +103,7 @@ const AdminDashboard: React.FC = () => {
     setCompanies(mockCompanies);
   }, []);
 
+  /** Populate feedback list with mock data once on mount */
   useEffect(() => {
     const mockFeedback: Feedback[] = [
       { name: 'Bence', message: 'I cannot access the user dashboard' },
@@ -87,53 +113,56 @@ const AdminDashboard: React.FC = () => {
     setFeedbackList(mockFeedback);
   }, []);
 
+  /** Filter students based on search query (name or ID) */
   const filteredStudents = students.filter(
     (student) =>
       student.name.toLowerCase().includes(studentSearch.toLowerCase()) ||
       student.id.includes(studentSearch)
   );
 
+  /** Filter companies based on search query (name or ID) */
   const filteredCompanies = companies.filter(
     (company) =>
       company.name.toLowerCase().includes(companySearch.toLowerCase()) ||
       company.id.includes(companySearch)
   );
 
+  /** Filter feedback based on search query (name or message) */
   const filteredFeedback = feedbackList.filter(
     (entry) =>
       entry.name.toLowerCase().includes(feedbackSearch.toLowerCase()) ||
       entry.message.toLowerCase().includes(feedbackSearch.toLowerCase())
   );
 
+  /** Toggle visibility of expanded student details */
   const toggleDetails = (id: string) => {
     setOpenStudentIds((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
 
+  /** Toggle visibility of expanded company details */
   const toggleCompanyDetails = (id: string) => {
     setOpenCompanyIds((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
 
+  /** =======================
+   * JSX UI Layout
+   * =======================
+   */
   return (
     <div className="dashboard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      {/* Students and Companies */}
+      
+      {/* STUDENTS & COMPANIES SECTION */}
       <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-        {/* Students */}
+        
+        {/* STUDENT CARD SECTION */}
         <div className="card" style={{ flex: 1, minWidth: '300px' }}>
           <h2>Students</h2>
           {renderSearchBar({
@@ -157,6 +186,7 @@ const AdminDashboard: React.FC = () => {
                 onClick={() => toggleDetails(student.id)}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {/* Red dot if student hasn't ranked */}
                   {!student.hasRanked && (
                     <span
                       style={{
@@ -171,6 +201,7 @@ const AdminDashboard: React.FC = () => {
                   )}
                   <strong>{student.name}</strong> (ID: {student.id})
                 </div>
+                {/* Expanded student details */}
                 {openStudentIds.has(student.id) && (
                   <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#4B5563' }}>
                     <p>QCA: {student.qca}</p>
@@ -186,7 +217,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Companies */}
+        {/* COMPANY CARD SECTION */}
         <div className="card" style={{ flex: 1, minWidth: '300px' }}>
           <h2>Companies</h2>
           {renderSearchBar({
@@ -210,6 +241,7 @@ const AdminDashboard: React.FC = () => {
                 onClick={() => toggleCompanyDetails(company.id)}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {/* Red dot if company hasn't ranked */}
                   {!company.hasRanked && (
                     <span
                       style={{
@@ -224,6 +256,7 @@ const AdminDashboard: React.FC = () => {
                   )}
                   <strong>{company.name}</strong> (ID: {company.id})
                 </div>
+                {/* Expanded company details */}
                 {openCompanyIds.has(company.id) && (
                   <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#4B5563' }}>
                     <p>Capacity: {company.capacity}</p>
@@ -236,7 +269,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Feedback */}
+      {/* FEEDBACK SECTION */}
       <div className="card">
         <h2>Feedback</h2>
         {renderSearchBar({

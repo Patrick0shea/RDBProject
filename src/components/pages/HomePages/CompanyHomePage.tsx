@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import RankingBlock from '../../shared/RankingBlock';
+
+// Importing global styles
 import '../../../styles/App.css';
 
+// TypeScript interface defining the structure of a Company object
 interface Company {
   id: number;
   residencyId: number;
@@ -13,9 +16,20 @@ interface Company {
   qca: string;
 }
 
+/**
+ * The CompanyHomePage component serves as the main dashboard UI
+ * for managing company preferences. Users can:
+ * - Drag companies from a list of "available companies"
+ * - Drop them into a "shortlist"
+ * - Reorder shortlisted items via drag-and-drop
+ * - Remove items back to the available list
+ * - Submit final rankings
+ */
 const CompanyHomePage = () => {
   const [availableCompanies, setAvailableCompanies] = useState<Company[]>([]);
   const [shortlist, setShortlist] = useState<Company[]>([]);
+
+  // State to keep track of the company currently being dragged
   const [dragged, setDragged] = useState<Company | null>(null);
 
   useEffect(() => {
@@ -57,6 +71,11 @@ const CompanyHomePage = () => {
     setDragged(company);
   };
 
+  /**
+   * Called when an item is dropped onto the shortlist drop zone.
+   * Adds the dragged company to the shortlist (if not already present),
+   * and removes it from the available companies list.
+   */
   const handleDrop = () => {
   if (!dragged) return;
 
@@ -76,21 +95,33 @@ const CompanyHomePage = () => {
 };
 
 
+  /**
+   * Removes a company from the shortlist and puts it back into the available companies list.
+   */
   const handleRemove = (id: number) => {
     const removed = shortlist.find(c => c.id === id);
     if (removed) {
-      setShortlist(prev => prev.filter(c => c.id !== id));
-      setAvailableCompanies(prev => [...prev, removed]);
+      setShortlist(prev => prev.filter(c => c.id !== id)); // Remove from shortlist
+      setAvailableCompanies(prev => [...prev, removed]); // Add back to available list
     }
   };
 
+  /**
+   * Handles the reordering of items in the shortlist.
+   * This is triggered during drag-over events within the shortlist.
+   */
   const handleSort = (dragIndex: number, hoverIndex: number) => {
     const updated = [...shortlist];
-    const [moved] = updated.splice(dragIndex, 1);
-    updated.splice(hoverIndex, 0, moved);
-    setShortlist(updated);
+    const [moved] = updated.splice(dragIndex, 1); // Remove dragged item
+    updated.splice(hoverIndex, 0, moved); // Insert it at the new position
+    setShortlist(updated); // Update state
   };
 
+  /**
+   * Submits the current shortlist rankings.
+   * Converts the shortlist into an array of tuples with [title, rank],
+   * logs it to the console, and shows a confirmation alert.
+   */
   const handleSubmit = () => {
     const payload = shortlist.map((company, index) => ({
       residency_id: company.residencyId,
@@ -124,14 +155,14 @@ const CompanyHomePage = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Left Column */}
+      {/* LEFT COLUMN: List of available companies to drag */}
       <div className="company-list scrollable">
         <h2>Available Students</h2>
         {availableCompanies.map(company => (
           <div
             key={company.id}
             data-testid="company-item"
-            draggable
+            draggable // Native HTML5 drag-and-drop attribute
             onDragStart={() => handleDragStart(company)}
             className="draggable-block"
           >
@@ -147,16 +178,18 @@ const CompanyHomePage = () => {
         ))}
       </div>
 
-      {/* Right Column */}
+      {/* RIGHT COLUMN: Shortlist area and drop zone */}
       <div
         className="shortlist scrollable"
         data-testid="shortlist-drop-zone"
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={(e) => e.preventDefault()} // Required to allow dropping
         onDrop={handleDrop}
       >
         <h2 style={{ backgroundColor: 'black', color: 'white', padding: '10px' }}>
           Shortlist
         </h2>
+
+        {/* Mapping through shortlisted companies */}
         {shortlist.map((company, index) => (
           <div
             key={company.id}
@@ -164,9 +197,12 @@ const CompanyHomePage = () => {
             onDragStart={() => setDragged(company)}
             onDragOver={(e) => {
               e.preventDefault();
+
+              // Reordering logic if another company is dragged over this one
               if (dragged && company.id !== dragged.id) {
                 const dragIndex = shortlist.findIndex(c => c.id === dragged.id);
                 const hoverIndex = shortlist.findIndex(c => c.id === company.id);
+
                 if (dragIndex !== -1 && hoverIndex !== -1) {
                   handleSort(dragIndex, hoverIndex);
                 }
@@ -192,6 +228,8 @@ const CompanyHomePage = () => {
 
           </div>
         ))}
+
+        {/* Submit button appears only when all companies have been moved to shortlist */}
         {availableCompanies.length === 0 && (
           <div style={{ marginTop: '20px' }}>
             <button
@@ -208,4 +246,7 @@ const CompanyHomePage = () => {
   );
 };
 
+// Exporting the component so it can be used in routing or other parent components
 export default CompanyHomePage;
+// This file defines the CompanyHomePage component, which is the main dashboard for managing company preferences.
+// It allows users to drag and drop companies between available and shortlisted lists, reorder shortlisted items, and submit their rankings.
