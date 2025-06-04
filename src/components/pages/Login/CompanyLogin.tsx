@@ -31,11 +31,7 @@ export function CompanyLogin() {
       return;
     }
     if (password !== confirmPassword) {
-<<<<<<< HEAD
       alert("Passwords do not match.");
-=======
-      setErrorMsg('Passwords do not match.');
->>>>>>> eaf0c0bffdd8275a3b7ee428bb52e89082859db3
       return;
     }
 
