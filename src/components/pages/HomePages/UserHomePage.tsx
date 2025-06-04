@@ -170,9 +170,8 @@ const UserHomePage = () => {
             <RankingBlock
               id={index + 1}
               title={student.title}
-              info1={`Location: ${student.title === 'Transact' ? 'Limerick' : 'Dublin'}`}
-              info2={`Salary: €${2500 + student.id * 100}/month`}
-              info3={`No. of Days in Office: ${student.id % 3}`}
+              info1={`Company: ${student.company_name}`}
+              info2={`Salary: €${student.salary} /month`}
               dropdownContent={
                 <button onClick={() => handleRemove(student.id)}>Remove</button>
               }
