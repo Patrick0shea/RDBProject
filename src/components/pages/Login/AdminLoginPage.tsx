@@ -11,7 +11,7 @@ const AdminLoginPage: React.FC = () => {
   // State for input fields and error handling
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [ID, setID] = useState(""); // Currently collected but not used in request
+  const [ID, setID] = useState(""); 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const navigate = useNavigate(); // Used to redirect the user after login
