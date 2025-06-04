@@ -8,12 +8,12 @@ import LandingPage from './components/pages/LandingPage';
 import { CompanyLogin } from './components/pages/Login/CompanyLogin';
 import AccLoginPage from './components/pages/Login/AccLoginPage';
 import AdminLoginPage from './components/pages/Login/AdminLoginPage';
-import ErrorBoundary from './components/shared/ErrorBoundary'; // ✅ IMPORT
+import ErrorBoundary from './components/shared/ErrorBoundary';
 
 function App() {
   return (
     <Router>
-      <ErrorBoundary> {/* ✅ WRAP HERE */}
+      <ErrorBoundary>
         <Navbar />
         <Routes>
           <Route path="/landing-page" element={<LandingPage />} />
