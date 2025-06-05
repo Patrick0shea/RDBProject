@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; /* Imports react and the helper which lets a function rememebr and update values */
 import { useNavigate } from 'react-router-dom';
 //import '../../styles/App.css';
 
-const AccLoginPage: React.FC = () => {
+const AccLoginPage: React.FC = () => { /* This is a functional component */
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); /* State variable, Updater function, Initial value */
   const [role, setRole] = useState<'user' | 'company' | 'admin'>('user');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => { /* function expects a paramter e (form submission)*/
     e.preventDefault();
+    /* Dont have a default error message*/
+    
 
+
+    /* Aaron*/
     try {
       const response = await fetch('http://localhost:8000/login', {
         method: 'POST',
@@ -28,6 +32,8 @@ const AccLoginPage: React.FC = () => {
 
       const data = await response.json();
       console.log('Login successful:', data);
+
+      /* Aaron */
 
       try {
         if (role === 'user') {
@@ -50,7 +56,7 @@ const AccLoginPage: React.FC = () => {
   return (
     <div className="admin-login-container">
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit} 
         className="company-list"
         style={{ width: '90%', maxWidth: '500px', padding: '2.5rem' }}
       >

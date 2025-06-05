@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; /* Imports react and the helper which lets a function rememebr and update values */
 import { useNavigate }      from 'react-router-dom';
 
 const LoginPage: React.FC = () => {
@@ -11,15 +11,13 @@ const LoginPage: React.FC = () => {
   const [github, setGithub]           = useState('');
   const [address, setAddress]         = useState('');
   const [cv, setCv]                   = useState<File | null>(null);
-  /*const [role, setRole]               = useState<'user'|'company'|'admin'>('user'); */
   const [studentId, setStudentId]     = useState('');
-  /*const [companyName, setCompanyName] = useState('');*/
   const navigate                       = useNavigate();
   const [errorMsg, setErrorMsg]             = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      if (e.target.files?.[0]) {
+      if (e.target.files?.[0]) { /* checks if user picked a file, if they did we enter the block if not we skip. */
         setCv(e.target.files[0]);
         setErrorMsg(null);       // Clear previous errors when a file succeeds
       }
@@ -55,6 +53,8 @@ const LoginPage: React.FC = () => {
 
     formData.append('student_id', studentId);
 
+    /* Aaron */
+
     fetch('http://localhost:8000/register', {
       method: 'POST',
       credentials: 'include',
@@ -73,6 +73,8 @@ const LoginPage: React.FC = () => {
           throw new Error((data as any).message || 'Server error occurred');
         }
 
+        /* aaron */
+
         try {
           navigate('/user-dashboard');
         } catch (navErr: any) {
@@ -81,9 +83,9 @@ const LoginPage: React.FC = () => {
         }
       })
       
-      .catch((err) => {
+      .catch((err) => { /* for the throw's not try's*/ 
         console.error('Error during fetch:', err);
-        alert(`Something went wrong!\n${err?.message || 'Unknown error'}`);
+        alert(`Something went wrong!\n${err?.message}`);
       });
   }; 
 
@@ -124,7 +126,7 @@ const LoginPage: React.FC = () => {
               cursor: 'pointer',
             }}
           >
-            x {/* so the user can close the error message */}
+            x {/* x so the user can close the error message */}
           </button>
         </div>
       )}

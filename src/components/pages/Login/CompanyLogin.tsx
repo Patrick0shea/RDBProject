@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom"; /* Allows redirection after logi
 
 
 export function CompanyLogin() {
-  const [firstName, setFirstName]       = useState("");
+  const [firstName, setFirstName]       = useState(""); /* State variable, Updater function, Initial value */
   const [lastName, setLastName]         = useState("");
   const [email, setEmail]               = useState("");
   const [password, setPassword]         = useState("");
@@ -13,19 +13,19 @@ export function CompanyLogin() {
   const [linkedin, setLinkedin]         = useState("");
   const [address, setAddress]           = useState("");
   const [companyName, setCompanyName]   = useState("");
-  const [numberOfJobs, setNumberOfJobs] = useState<number | "">(""); /* Can hold a empty string or a number*/
+  const [numberOfJobs, setNumberOfJobs] = useState<number | "">(""); /* Can hold a number or a empty string and its initalised to empty string */
   const [salary, setSalary]             = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const navigate = useNavigate(); /* Calls the useNavigate hook, which returns a navigate function*/
   const [errorMsg, setErrorMsg] = useState<string | null>(null); /* It’s null when there is no error, or a string to display an error banner*/
 
   
-  const handleSubmit = async (e: React.FormEvent) => { /* called when the form is submitted*/
+  const handleSubmit = async (e: React.FormEvent) => { /* function expects a paramter e (form submission)*/
     e.preventDefault(); /* Prevents a full page reload, instead handles in in JSX*/
     setErrorMsg(null); /* Clears any previous error message*/
 
 
-    /*(client-side validation) checks that both firstName and lastName are non‐empty */
+    /* checks that both firstName and lastName are non‐empty */
     if (!firstName.trim() || !lastName.trim()) {
       alert("First Name and Last Name are required.");
       return;
@@ -38,19 +38,19 @@ export function CompanyLogin() {
     const userType = 1; /* company user type*/
     /* Make a new, empty container(object) to collect form values before sending */
     const formData = new FormData();
-    /* adds the form data to the form data object */
-    formData.append("first_name", firstName);
+    formData.append("first_name", firstName); /* field name, value */
     formData.append("last_name", lastName);
     formData.append("email", email);
     formData.append("password", password);
     formData.append("password_confirmation", confirmPassword);
     formData.append("linkedin", linkedin);
     formData.append("address", address);
-    formData.append("user_type", String(userType));
+    formData.append("user_type", String(userType)); /* Converts userType which is a number to a string (formData only works with strings)*/
     formData.append("company_name", companyName);
+    /* salary, job-description and number of jobs are in aarons stuff*/
 
 
-    /* must ask aaron */
+    /* aaron */
 
     try {
       const res1 = await fetch("http://localhost:8000/register", {
@@ -95,10 +95,12 @@ export function CompanyLogin() {
         throw new Error(jobData.message || "Job post failed");
       }
 
+      /*  aaron */
+      /* save the user’s type in the browser’s local storage */
       try {
         localStorage.setItem("user_type", "1");
       } catch (storageErr: any) {
-        console.error("localStorage error:", storageErr);
+        console.error("localStorage error:", storageErr); /*helps with debugging */
         setErrorMsg("Could not save login state—storage is disabled or full.");
         return;
       }
@@ -112,7 +114,7 @@ export function CompanyLogin() {
 
     } catch (err: any) {
       console.error("Error during registration flow:", err);
-      setErrorMsg(err?.message || "Something went wrong—please try again.");
+      setErrorMsg("Something went wrong—please try again.");
     }
   };
 
@@ -121,8 +123,8 @@ export function CompanyLogin() {
       className="admin-login-container"
       style={{
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: "center", /* Centres horizontally*/
+        justifyContent: "center", /* Centres vertically*/
         minHeight: "100vh",
       }}
     >
@@ -135,11 +137,11 @@ export function CompanyLogin() {
           Create Company Account
         </h1>
 
-        {errorMsg && ( /* If error message is not null render this  */
+         {/* If error message is not null render this  */}
           <div style={{ color: "red", marginBottom: "1rem" }}>
             {errorMsg}
           </div>
-        )}
+        
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
           Number of Jobs *
@@ -148,8 +150,7 @@ export function CompanyLogin() {
             min={0}
             value={numberOfJobs}
             onChange={(e) =>
-              setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value)) /* Takes input and updates it to be either a empty or numeric value*/
-            }
+              setNumberOfJobs(e.target.value === "" ? "" : Number(e.target.value)) /* if its true i.e "" then set it to empty string else convert it to number */}
             required
             placeholder="Number of available jobs"
             className="admin-login-input"
@@ -171,7 +172,7 @@ export function CompanyLogin() {
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
           Job Description *
-          <textarea
+          <input
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
             required
