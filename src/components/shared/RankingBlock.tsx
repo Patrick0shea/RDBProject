@@ -65,7 +65,7 @@ const RankingBlock: React.FC<RankingBlockProps> = ({
               <strong>{id}. {title || 'Untitled'}</strong>      {/* Show index and title or fallback */}
               <div>{info1 || 'No location info'}</div>          {/* Optional line 1 or fallback */}
               <div>{info2 || 'No salary info'}</div>            {/* Optional line 2 or fallback */}
-              <div>{info3 || 'No office info'}</div>            {/* Optional line 3 or fallback */}
+              <div>{info3}</div>            {/* Optional line 3 or fallback */}
             </div>
 
             {/* Dropdown arrow icon: ▲ if open, ▼ if closed */}

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom'; // Enables toBeInTheDocument()
-import AdminLoginPage from '../../components/pages/Login/AdminLoginPage'; // Adjust path if needed
+import AdminLogin from '../../components/pages/Login/AdminLogin'; // Adjust path if needed
 
 describe('AdminLoginPage', () => {
   it('renders form inputs and heading', () => {

@@ -13,7 +13,8 @@ interface Company {
   firstName: string;
   lastName: string;
   email: string;
-  qca: string;
+  score: string;
+  student_id: number;
 }
 
 /**
@@ -28,9 +29,28 @@ interface Company {
 const CompanyHomePage = () => {
   const [availableCompanies, setAvailableCompanies] = useState<Company[]>([]);
   const [shortlist, setShortlist] = useState<Company[]>([]);
+  const [offerData, setOfferData] = useState(null);
 
   // State to keep track of the company currently being dragged
   const [dragged, setDragged] = useState<Company | null>(null);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/check-has-accepted-offers', {
+      credentials: 'include',
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        setOfferData(data);
+      })
+      .catch(error => {
+      });
+  }, []);
+
+  // Extract student IDs from assignments
+  const studentEmails = offerData?.assignments?.map(a => a.student_email).filter(Boolean) || [];
 
   useEffect(() => {
     fetch('http://localhost:8000/get-offers', {
@@ -53,7 +73,8 @@ const CompanyHomePage = () => {
             firstName: offer.student?.first_name || '',
             lastName: offer.student?.last_name || '',
             email: offer.student?.email || '',
-            qca: offer.student?.qca || ''
+            score: offer.student?.score || '',
+            student_id: offer.student_id || ''
           }));
           setAvailableCompanies(companies);
         } else {
@@ -123,16 +144,16 @@ const CompanyHomePage = () => {
    * logs it to the console, and shows a confirmation alert.
    */
   const handleSubmit = () => {
-    const payload = shortlist.map((company, index) => ({
+    const payload = shortlist.map((company) => ({
       residency_id: company.residencyId,
-      student_id: company.id,
-      rank: index + 1,
+      student_id: company.student_id,
     }));
 
     fetch('http://localhost:8000/accept-student-offers', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
       credentials: 'include',
       body: JSON.stringify({ assignments: payload }),
@@ -155,93 +176,107 @@ const CompanyHomePage = () => {
 
   return (
     <div className="dashboard-container">
-      {/* LEFT COLUMN: List of available companies to drag */}
-      <div className="company-list scrollable">
-        <h2>Available Students</h2>
-        {availableCompanies.map(company => (
+      {offerData?.hasAcceptedOffers ? (
+        <div
+          style={{
+            backgroundColor: '#d4edda',
+            border: '1px solid #c3e6cb',
+            padding: '15px',
+            borderRadius: '5px',
+            marginBottom: '20px',
+            color: '#155724',
+            fontWeight: 'bold',
+          }}
+        >
+          <p>Offers accepted</p>
+          <p>Students: {studentEmails.join(', ')}</p>
+          <p>Please reach out to students shortly.</p>
+        </div>
+      ) : (
+        <>
+          {/* LEFT COLUMN: List of available companies to drag */}
+          <div className="company-list scrollable">
+            <h2>Available Students</h2>
+            {availableCompanies.map(company => (
+              <div
+                key={company.id}
+                data-testid="company-item"
+                draggable
+                onDragStart={() => handleDragStart(company)}
+                className="draggable-block"
+              >
+                <RankingBlock
+                  id={company.id}
+                  title={`${company.firstName} ${company.lastName}`}
+                  info1={`Email: ${company.email}`}
+                  info2={`Score: ${company.score}`}
+                  dropdownContent={<p>Student ID: {company.id}</p>}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT COLUMN: Shortlist area and drop zone */}
           <div
-            key={company.id}
-            data-testid="company-item"
-            draggable // Native HTML5 drag-and-drop attribute
-            onDragStart={() => handleDragStart(company)}
-            className="draggable-block"
+            className="shortlist scrollable"
+            data-testid="shortlist-drop-zone"
+            onDragOver={e => e.preventDefault()}
+            onDrop={handleDrop}
           >
-            <RankingBlock
-              id={company.id}
-              title={`${company.firstName} ${company.lastName}`}
-              info1={`Email: ${company.email}`}
-              info2={`QCA: ${company.qca}`}
-              info3={`Salary: €${company.salary}/month`}
-              dropdownContent={<p>Student ID: ${company.id}</p>}
-            />
+            <h2 style={{ backgroundColor: 'black', color: 'white', padding: '10px' }}>
+              Shortlist
+            </h2>
+
+            {shortlist.map((company, index) => (
+              <div
+                key={company.id}
+                draggable
+                onDragStart={() => setDragged(company)}
+                onDragOver={e => {
+                  e.preventDefault();
+
+                  if (dragged && company.id !== dragged.id) {
+                    const dragIndex = shortlist.findIndex(c => c.id === dragged.id);
+                    const hoverIndex = shortlist.findIndex(c => c.id === company.id);
+
+                    if (dragIndex !== -1 && hoverIndex !== -1) {
+                      handleSort(dragIndex, hoverIndex);
+                    }
+                  }
+                }}
+                className="shortlist-item"
+              >
+                <RankingBlock
+                  id={index + 1}
+                  title={`${company.firstName} ${company.lastName}`}
+                  info1={`Email: ${company.email}`}
+                  info2={`Score: ${company.score}`}
+                  dropdownContent={
+                    <>
+                      <p>{company.title} in shortlist</p>
+                      <button onClick={() => handleRemove(company.id)} data-testid="remove-button">
+                        Remove
+                      </button>
+                    </>
+                  }
+                />
+              </div>
+            ))}
+
+            {availableCompanies.length === 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <button
+                  onClick={handleSubmit}
+                  style={{ padding: '10px 20px', fontSize: '16px' }}
+                  aria-label="Submit Rankings"
+                >
+                  Submit Rankings
+                </button>
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-
-      {/* RIGHT COLUMN: Shortlist area and drop zone */}
-      <div
-        className="shortlist scrollable"
-        data-testid="shortlist-drop-zone"
-        onDragOver={(e) => e.preventDefault()} // Required to allow dropping
-        onDrop={handleDrop}
-      >
-        <h2 style={{ backgroundColor: 'black', color: 'white', padding: '10px' }}>
-          Shortlist
-        </h2>
-
-        {/* Mapping through shortlisted companies */}
-        {shortlist.map((company, index) => (
-          <div
-            key={company.id}
-            draggable
-            onDragStart={() => setDragged(company)}
-            onDragOver={(e) => {
-              e.preventDefault();
-
-              // Reordering logic if another company is dragged over this one
-              if (dragged && company.id !== dragged.id) {
-                const dragIndex = shortlist.findIndex(c => c.id === dragged.id);
-                const hoverIndex = shortlist.findIndex(c => c.id === company.id);
-
-                if (dragIndex !== -1 && hoverIndex !== -1) {
-                  handleSort(dragIndex, hoverIndex);
-                }
-              }
-            }}
-            className="shortlist-item"
-          >
-            <RankingBlock
-  id={index + 1}
-  title={`${company.firstName} ${company.lastName}`}
-  info1={`Email: ${company.email}`}
-  info2={`QCA: ${company.qca}`}
-  info3={`Salary: €${company.salary}/month`}
-  dropdownContent={
-    <>
-      <p>{company.title} in shortlist</p>
-      <button onClick={() => handleRemove(company.id)} data-testid="remove-button">
-        Remove
-      </button>
-    </>
-  }
-/>
-
-          </div>
-        ))}
-
-        {/* Submit button appears only when all companies have been moved to shortlist */}
-        {availableCompanies.length === 0 && (
-          <div style={{ marginTop: '20px' }}>
-            <button
-              onClick={handleSubmit}
-              style={{ padding: '10px 20px', fontSize: '16px' }}
-              aria-label="Submit Rankings"
-            >
-              Submit Rankings
-            </button>
-          </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

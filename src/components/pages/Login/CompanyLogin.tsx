@@ -250,11 +250,13 @@ export function CompanyLogin() {
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
           Password *
-          <PasswordField
+          <input
+            type="password"
             value={password}
-            onChange={setPassword}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="Re-enter your password"
             className="admin-login-input"
-            placeholder="Enter your password"
           />
         </label>
 

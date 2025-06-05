@@ -54,22 +54,22 @@ const LandingPageTest: React.FC = () => {
         <h2 className="admin-login-header">Who Are You?</h2>
 
         <Button
-          label="Just Signing In"
+          label="Sign In"
           onClick={() => handleClick('3', '/acc-login-page')}
           className="admin-login-button"
         />
         <Button
-          label="Student"
+          label="Create Student Account"
           onClick={() => handleClick('0', '/login')}
           className="admin-login-button"
         />
         <Button
-          label="Company"
+          label="Create Company Account"
           onClick={() => handleClick('1', '/company-login')}
           className="admin-login-button"
         />
         <Button
-          label="Admin"
+          label="Create Admin Account"
           onClick={() => handleClick('2', '/admin-login-page')}
           className="admin-login-button"
         />

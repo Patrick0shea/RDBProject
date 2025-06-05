@@ -9,7 +9,7 @@ import AdminDashboard3 from './components/pages/dashboards/AdminDashboard3';
 import LandingPage from './components/pages/LandingPage';
 import { CompanyLogin } from './components/pages/Login/CompanyLogin';
 import AccLoginPage from './components/pages/Login/AccLoginPage';
-import AdminLoginPage from './components/pages/Login/AdminLoginPage';
+import { AdminLogin } from './components/pages/Login/AdminLogin';
 
 // ErrorBoundary is a custom wrapper that catches runtime errors in children components
 import ErrorBoundary from './components/shared/ErrorBoundary'; // Provides graceful error fallback UI
@@ -29,7 +29,7 @@ function App() {
     <Router>
       {/* ErrorBoundary: Catches JavaScript errors in any child components and shows fallback UI */}
       <ErrorBoundary>
-        <Navbar />
+        {<Navbar />}
 
         {/* Routes: This is where all the routes in the application are defined */}
         <Routes>
@@ -52,10 +52,10 @@ function App() {
           <Route path="/acc-login-page" element={<AccLoginPage />} />
 
           {/* Admin login */}
-          <Route path="/admin-login-page" element={<AdminLoginPage />} />
+          <Route path="/admin-login-page" element={<AdminLogin />} />
 
           {/* Admin dashboard */}
-          <Route path="/admin-dashboard3" element={<AdminDashboard3 />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard3 />} />
 
           {/* Fallback route — catches any unrecognized paths and routes to LandingPage */}
           <Route path="*" element={<LandingPage />} />

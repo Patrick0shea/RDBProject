@@ -166,27 +166,27 @@ const LoginPage: React.FC = () => {
           />
         </label>
 
-        <label style={{ display: 'block', marginBottom: '1rem' }}>
-          Password
+        <label style={{ display: "block", marginBottom: "1rem" }}>
+          Password *
           <input
             type="password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            className="admin-login-input"
+            onChange={(e) => setPassword(e.target.value)}
             required
+            placeholder="Re-enter your password"
+            className="admin-login-input"
           />
         </label>
 
-        <label style={{ display: 'block', marginBottom: '1rem' }}>
-          Confirm Password
+        <label style={{ display: "block", marginBottom: "1rem" }}>
+          Confirm Password *
           <input
             type="password"
             value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
             placeholder="Re-enter your password"
             className="admin-login-input"
-            required
           />
         </label>
 

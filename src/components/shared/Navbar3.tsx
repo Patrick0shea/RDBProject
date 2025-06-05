@@ -11,8 +11,8 @@ const Navbar3 = () => {
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+        },
       });
 
       if (response.ok) {
@@ -30,24 +30,47 @@ const Navbar3 = () => {
   };
 
   return (
-    <nav className="navbar">
-      <ul>
-        <li><Link to="/landing-page">Landing Page</Link></li>
-        <li><Link to="/user-dashboard">User Dashboard</Link></li>
-        <li><Link to="/company-dashboard">Company Dashboard</Link></li>
-        <li><Link to="/admin-dashboard">Admin Dashboard</Link></li>
-        <li><Link to="/acc-login-page">Acc Login Page</Link></li>
-        <li><Link to="/admin-dashboard">Admin dashboard</Link></li>
-        <li><Link to="/admin-login-page">Admin Login Page</Link></li>
-        <li>
-          <button
-            onClick={handleLogout}
-            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer' }}
-          >
-            Logout
-          </button>
-        </li>
-      </ul>
+    <nav
+      className="navbar"
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem 2rem',
+        backgroundColor: '#1F2937', // dark gray
+        color: '#F9FAFB', // light text
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <div className="nav-left">
+        <Link
+          to="/landing-page"
+          style={{
+            color: '#F9FAFB',
+            textDecoration: 'none',
+            fontSize: '1.25rem',
+            fontWeight: 'bold',
+          }}
+        >
+          Home
+        </Link>
+      </div>
+      <div className="nav-right">
+        <button
+          onClick={handleLogout}
+          style={{
+            backgroundColor: '#EF4444', // red
+            border: 'none',
+            color: '#FFFFFF',
+            padding: '0.5rem 1rem',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: '500',
+          }}
+        >
+          Logout
+        </button>
+      </div>
     </nav>
   );
 };

@@ -17,6 +17,22 @@ const UserHomePage = () => {
 
   // Indicates whether the data is still loading
   const [loading, setLoading] = useState(true);
+  const [assignmentData, setAssignmentData] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/check-my-offers', {
+      credentials: 'include',
+    })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        setAssignmentData(data);
+      })
+      .catch(error => {
+      });
+  }, []);
 
   // Fetches residencies from the backend once the component mounts
   useEffect(() => {
@@ -154,89 +170,99 @@ const UserHomePage = () => {
 
   return (
     <div className="dashboard-container">
-      {/* LEFT COLUMN: Available Residencies */}
-      <div className="students-list scrollable">
-        <h2>Available Residencies</h2>
+      {assignmentData?.hasAcceptedOffers ? (
+        // Render the "Accepted Offer" Info Box
+        <div
+          style={{
+            backgroundColor: '#d1ecf1',
+            border: '1px solid #bee5eb',
+            padding: '15px',
+            borderRadius: '5px',
+            marginBottom: '20px',
+            color: '#0c5460',
+            fontWeight: 'bold',
+          }}
+        >
+          <p>A company has accepted your offer!</p>
+          <p>Company: {assignmentData.company.company_name}</p>
+          <p>Company Email: {assignmentData.company.email}</p>
+          <p>Residency Description: {assignmentData.residency.description}</p>
+          <p>Salary: €{assignmentData.residency.salary}</p>
+          <p>Expect the company to email you shortly.</p>
+        </div>
+      ) : (
+        // Only show this if no offer has been accepted
+        <>
+          {/* LEFT COLUMN: Available Residencies */}
+          <div className="students-list scrollable">
+            <h2>Available Residencies</h2>
 
-        {/* Show loading message while fetching */}
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          // Render each available residency as a draggable block
-          availableStudents.map(student => (
-            <div
-              key={student.id}
-              draggable
-              onDragStart={() => handleDragStart(student)}
-              className="draggable-block"
-            >
-              <RankingBlock
-                id={student.id}
-                title={student.title}
-                info1={`Company: ${student.company_name}`}
-                info2={`Salary: €${student.salary} /month`}
-                dropdownContent={<p>{student.title} details</p>}
-              />
-            </div>
-          ))
-        )}
-      </div>
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              availableStudents.map(student => (
+                <div
+                  key={student.id}
+                  draggable
+                  onDragStart={() => handleDragStart(student)}
+                  className="draggable-block"
+                >
+                  <RankingBlock
+                    id={student.id}
+                    title={student.title}
+                    info1={`Company: ${student.company_name}`}
+                    info2={`Salary: €${student.salary} /month`}
+                    dropdownContent={<p>{student.title} details</p>}
+                  />
+                </div>
+              ))
+            )}
+          </div>
 
-      {/* RIGHT COLUMN: Shortlisted Residencies */}
-      <div
-        className="shortlist scrollable"
-        onDragOver={e => e.preventDefault()} // Allow drop by preventing default
-        onDrop={handleDrop} // Drop handler called function above ^
-      >
-        <h2 className="shortlist-title">Shortlist</h2>
-
-        {/* Render each shortlisted residency with reordering and remove options */}
-        {shortlist.map((student, index) => (
+          {/* RIGHT COLUMN: Shortlisted Residencies */}
           <div
-            key={student.id}
-            draggable
-            onDragStart={() => {
-              try {
-                setDragged(student); // Track which item is being dragged
-              } catch (error) {
-                console.error('DragStart error on shortlist:', error);
-              }
-            }}
-            onDragOver={e => {
-              try {
-                e.preventDefault(); // Required to allow onDrop
-                if (dragged && student.id !== dragged.id) {
-                  const dragIndex = shortlist.findIndex(s => s.id === dragged.id);
-                  handleSort(dragIndex, index); // Reorder on hover
-                }
-              } catch (error) {
-                console.error('DragOver error:', error);
-              }
-            }}
-            className="shortlist-item"
+            className="shortlist scrollable"
+            onDragOver={e => e.preventDefault()}
+            onDrop={handleDrop}
           >
-            <RankingBlock
-              id={index + 1} // Show rank number
-              title={student.title}
-              info1={`Company: ${student.company_name}`}
-              info2={`Salary: €${student.salary} /month`}
-              dropdownContent={
-                // Remove button inside dropdown
-                <button onClick={() => handleRemove(student.id)}>Remove</button>
-              }
-            />
-          </div>
-        ))}
+            <h2 className="shortlist-title">Shortlist</h2>
 
-        {/* Show submit button only when all residencies are in the shortlist */}
-        {availableStudents.length === 0 && (
-          <div style={{ marginTop: '20px' }}>
-            <button onClick={handleSubmit} className="submit-button">
-              Submit Rankings
-            </button>
+            {shortlist.map((student, index) => (
+              <div
+                key={student.id}
+                draggable
+                onDragStart={() => setDragged(student)}
+                onDragOver={e => {
+                  e.preventDefault();
+                  if (dragged && student.id !== dragged.id) {
+                    const dragIndex = shortlist.findIndex(s => s.id === dragged.id);
+                    handleSort(dragIndex, index);
+                  }
+                }}
+                className="shortlist-item"
+              >
+                <RankingBlock
+                  id={index + 1}
+                  title={student.title}
+                  info1={`Company: ${student.company_name}`}
+                  info2={`Salary: €${student.salary} /month`}
+                  dropdownContent={
+                    <button onClick={() => handleRemove(student.id)}>Remove</button>
+                  }
+                />
+              </div>
+            ))}
+
+            {availableStudents.length === 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <button onClick={handleSubmit} className="submit-button">
+                  Submit Rankings
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

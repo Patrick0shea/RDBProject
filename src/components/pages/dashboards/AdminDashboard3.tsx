@@ -10,10 +10,9 @@ import React, { useState, useEffect } from 'react';
 interface Student {
   id: string;
   name: string;
-  qca: number;
+  score: number;
   attendance: number;
   averageParticipationPercentage: number;
-  score: number;
   behavioralTrait: string;
   hasRanked: boolean;
 }
@@ -78,39 +77,134 @@ const AdminDashboard: React.FC = () => {
   const [companySearch, setCompanySearch] = useState('');
   const [feedbackSearch, setFeedbackSearch] = useState('');
 
+  const [offersAvailable, setOffersAvailable] = useState<boolean | null>(null); // null = loading state
+  const [assignmentsMade, setAssignmentsMade] = useState<boolean | null>(null); // null = loading state
+
+
   // Feedback state
   const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
 
-  /** Populate student list with mock data once on mount */
+  /** Add this useEffect for fetching offers */
   useEffect(() => {
-    const mockStudents: Student[] = [
-      { id: '24403822', name: 'Sam McLoughlin', qca: 3.88, attendance: 90, averageParticipationPercentage: 20, score: 70, behavioralTrait: 'Team Player', hasRanked: true },
-      { id: '24430668', name: 'Patrick O Shea', qca: 3.52, attendance: 90, averageParticipationPercentage: 25, score: 70, behavioralTrait: 'Problem Solver', hasRanked: false },
-      { id: '23355409', name: 'Aaron McGuinness', qca: 3.96, attendance: 90, averageParticipationPercentage: 15, score: 70, behavioralTrait: 'Creative Thinker', hasRanked: true },
-      { id: '24405523', name: 'Hugh Feehan', qca: 2.85, attendance: 90, averageParticipationPercentage: 10, score: 70, behavioralTrait: 'Independent Worker', hasRanked: false },
-    ];
-    setStudents(mockStudents);
+    const fetchOffers = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/get-offers', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const hasOffers = data.offers && data.offers.length > 0;
+          setOffersAvailable(hasOffers);
+        } else {
+          console.error('Failed to fetch offers');
+          setOffersAvailable(false);
+        }
+
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+        setOffersAvailable(false);
+      }
+    };
+
+    fetchOffers();
   }, []);
 
-  /** Populate company list with mock data once on mount */
+    /** Add this useEffect for fetching offers */
   useEffect(() => {
-    const mockCompanies: Company[] = [
-      { id: '001', name: 'Amazon', capacity: 6, hasRanked: false },
-      { id: '002', name: 'Shanonside Capital', capacity: 2, hasRanked: true },
-      { id: '003', name: 'INFANT', capacity: 2, hasRanked: false },
-      { id: '004', name: 'Zerve', capacity: 1, hasRanked: true },
-    ];
-    setCompanies(mockCompanies);
+    const fetchAssignments = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/get-offers', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const hasAssignments = data.offers && data.offers.length > 0;
+          setAssignmentsMade(hasAssignments);
+        } else {
+          console.error('Failed to fetch assignments');
+          setAssignmentsMade(false);
+        }
+
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+        setAssignmentsMade(false);
+      }
+    };
+
+    fetchAssignments();
   }, []);
 
-  /** Populate feedback list with mock data once on mount */
   useEffect(() => {
-    const mockFeedback: Feedback[] = [
-      { name: 'Bence', message: 'I cannot access the user dashboard' },
-      { name: 'Hugh', message: 'My student number doesnt work' },
-      { name: 'Aaron', message: 'Results are not updating' },
-    ];
-    setFeedbackList(mockFeedback);
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/admin/students', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const transformed = data.students.map((s) => ({
+            id: s.student_id,
+            name: `${s.user.first_name} ${s.user.last_name}`,
+            email: s.user.email,
+            score: s.score,
+            hasRanked: s.hasRanked,
+          }));
+          setStudents(transformed);
+        } else {
+          console.error('Failed to fetch students');
+        }
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/admin/companies', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const transformed = data.companies.map((c) => ({
+            id: c.company_id,
+            name: c.company_name,
+            capacity:c.capacity,
+            hasRanked: c.hasRanked,
+          }));
+          setCompanies(transformed);
+        } else {
+          console.error('Failed to fetch companies');
+        }
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
   }, []);
 
   /** Filter students based on search query (name or ID) */
@@ -158,20 +252,76 @@ const AdminDashboard: React.FC = () => {
    */
   return (
     <div className="dashboard-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      
+      {offersAvailable === false && (
+        <p style={{ color: 'red', fontStyle: 'italic', marginBottom: '1rem' }}>
+          * Offers have not been assigned to students yet
+        </p>
+      )}
+
+      {assignmentsMade === false && (
+        <p style={{ color: 'red', fontStyle: 'italic', marginBottom: '1rem' }}>
+          * Assignments have not been made yet
+        </p>
+      )}
+
+      {/* BUTTON ROW */}
+      <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-start' }}>
+        <button
+          onClick={() => {
+            fetch('http://localhost:8000/assign-offers', { method: 'POST', credentials: 'include' })
+              .then(response => {
+                if (!response.ok) throw new Error('Request failed');
+                return response.json();
+              })
+              .then(data => {
+                alert('Offers processed successfully!');
+                setOffersAvailable(true);
+              })
+              .catch(error => alert('Error processing offers: ' + error.message));
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#2563EB',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+          }}
+        >
+          Process Offers
+        </button>
+
+        <button
+          onClick={() => {
+            fetch('http://localhost:8000/generate-student-scores', { method: 'POST' })
+              .then(response => {
+                if (!response.ok) throw new Error('Request failed');
+                return response.json();
+              })
+              .then(data => alert('Student scores generated successfully!'))
+              .catch(error => alert('Error generating student scores: ' + error.message));
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#10B981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+          }}
+        >
+          Generate Student Scores
+        </button>
+      </div>
+
       {/* STUDENTS & COMPANIES SECTION */}
       <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         
         {/* STUDENT CARD SECTION */}
         <div className="card" style={{ flex: 1, minWidth: '300px' }}>
           <h2>Students</h2>
-          {renderSearchBar({
-            placeholder: 'Search students by name or ID',
-            value: studentSearch,
-            onChange: setStudentSearch,
-          })}
+          
           <div>
-            {filteredStudents.length === 0 && <p>No students found</p>}
             {filteredStudents.map((student) => (
               <div
                 key={student.id}
@@ -204,11 +354,7 @@ const AdminDashboard: React.FC = () => {
                 {/* Expanded student details */}
                 {openStudentIds.has(student.id) && (
                   <div style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#4B5563' }}>
-                    <p>QCA: {student.qca}</p>
-                    <p>Attendance: {student.attendance}%</p>
-                    <p>Participation: {student.averageParticipationPercentage}%</p>
                     <p>Score: {student.score}</p>
-                    <p>Behavioral Trait: {student.behavioralTrait}</p>
                     <p>Has Ranked: {student.hasRanked ? 'Yes' : 'No'}</p>
                   </div>
                 )}
@@ -220,13 +366,8 @@ const AdminDashboard: React.FC = () => {
         {/* COMPANY CARD SECTION */}
         <div className="card" style={{ flex: 1, minWidth: '300px' }}>
           <h2>Companies</h2>
-          {renderSearchBar({
-            placeholder: 'Search companies by name or ID',
-            value: companySearch,
-            onChange: setCompanySearch,
-          })}
+          
           <div>
-            {filteredCompanies.length === 0 && <p>No companies found</p>}
             {filteredCompanies.map((company) => (
               <div
                 key={company.id}
@@ -269,7 +410,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* FEEDBACK SECTION */}
+      {/* FEEDBACK SECTION 
       <div className="card">
         <h2>Feedback</h2>
         {renderSearchBar({
@@ -295,7 +436,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
